@@ -94,8 +94,10 @@ global with sharing class Milestone1_Import_Project_Controller {
                 errorMsg = new ApexPages.Message(ApexPages.Severity.FATAL,Milestone1_Import_Exception.ERROR_INVALID_XML);
             }
             ApexPages.addMessage( errorMsg );
+            try { Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not affect import */ }
             return ApexPages.currentPage();
         }
+        try { Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not affect import */ }
         return new ApexPages.StandardController(project).view();
     }
    
