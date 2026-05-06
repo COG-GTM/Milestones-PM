@@ -86,7 +86,8 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     */
     public static void checkSuccessorDependencies(Map<Id, Milestone1_Milestone__c> oldMap, Map<Id, Milestone1_Milestone__c> newMap) {
         Map<Id, Set<Milestone1_Milestone__c>> successorMap = new Map<Id, Set<Milestone1_Milestone__c>>();
-        for(Milestone1_Milestone__c successor: [SELECT Id, Kickoff__c, Deadline__c, Predecessor_Milestone__c FROM Milestone1_Milestone__c WHERE Predecessor_Milestone__c IN :newMap.keySet() WITH USER_MODE]) {
+        // System mode intentional: trigger cascade must see all successor milestones to maintain date integrity
+        for(Milestone1_Milestone__c successor: [SELECT Id, Kickoff__c, Deadline__c, Predecessor_Milestone__c FROM Milestone1_Milestone__c WHERE Predecessor_Milestone__c IN :newMap.keySet()]) {
             if(!successorMap.containsKey(successor.Predecessor_Milestone__c)) {
                 successorMap.put(successor.Predecessor_Milestone__c, new Set<Milestone1_Milestone__c>());
             }
@@ -120,7 +121,8 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     
     public static void checkChildDependencies(Map<Id, Milestone1_Milestone__c> oldMap, Map<Id, Milestone1_Milestone__c> newMap) {
         Map<Id, Set<Milestone1_Milestone__c>> childMap = new Map<Id, Set<Milestone1_Milestone__c>>();
-        for(Milestone1_Milestone__c child: [SELECT Id, Kickoff__c, Deadline__c, Parent_Milestone__c FROM Milestone1_Milestone__c WHERE Parent_Milestone__c IN :newMap.keySet() WITH USER_MODE]) {
+        // System mode intentional: trigger cascade must see all child milestones to maintain date integrity
+        for(Milestone1_Milestone__c child: [SELECT Id, Kickoff__c, Deadline__c, Parent_Milestone__c FROM Milestone1_Milestone__c WHERE Parent_Milestone__c IN :newMap.keySet()]) {
             if(!childMap.containsKey(child.Parent_Milestone__c)) {
                 childMap.put(child.Parent_Milestone__c, new Set<Milestone1_Milestone__c>());
             }
@@ -152,7 +154,8 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     
     public static void checkTaskDependencies(Map<Id, Milestone1_Milestone__c> oldMap, Map<Id, Milestone1_Milestone__c> newMap) {
         Map<Id, Set<Milestone1_Task__c>> taskMap = new Map<Id, Set<Milestone1_Task__c>>();
-        for(Milestone1_Task__c task: [SELECT Id, Start_Date__c, Due_Date__c, Project_Milestone__c FROM Milestone1_Task__c WHERE Project_Milestone__c IN :newMap.keySet() WITH USER_MODE]) {
+        // System mode intentional: trigger cascade must see all tasks under milestones to maintain date integrity
+        for(Milestone1_Task__c task: [SELECT Id, Start_Date__c, Due_Date__c, Project_Milestone__c FROM Milestone1_Task__c WHERE Project_Milestone__c IN :newMap.keySet()]) {
             if(!taskMap.containsKey(task.Project_Milestone__c)) {
                 taskMap.put(task.Project_Milestone__c, new Set<Milestone1_Task__c>());
             }
