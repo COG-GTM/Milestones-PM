@@ -52,9 +52,6 @@ public with sharing class Milestone1_Milestone_Values_Helper {
     }
     
     public void addValuesFromChild(Milestone1_Milestone__c child){
-        System.debug('*** Adding values from "' + child.Name + '" to "' + oldRecord.Name + '"');
-        System.debug('*** Values being added are: ' + child);
-        
         newRecord.Actual_Hours_From_Sub_Milestones__c += child.Total_Actual_Hours__c;
         newRecord.Actual_Expense_From_Sub_Milestones__c += child.Total_Actual_Expense__c;
         newRecord.Estimated_Hours_From_Sub_Milestones__c += child.Total_Estimated_Hours__c;
@@ -73,7 +70,6 @@ public with sharing class Milestone1_Milestone_Values_Helper {
         //2011-03-01 Based on comment from user.
         //newRecord.Complete_Tasks_in_Sub_Milestones__c += child.Total_Late_Tasks__c;
         
-        System.debug('*** New values are: ' + newRecord);
     }
     
     public void updateOldWithNew(){
@@ -87,7 +83,6 @@ public with sharing class Milestone1_Milestone_Values_Helper {
         oldRecord.Late_Tasks_in_Sub_Milestones__c = newRecord.Late_Tasks_in_Sub_Milestones__c;
         oldRecord.Complete_Tasks_in_Sub_Milestones__c = newRecord.Complete_Tasks_in_Sub_Milestones__c;
         oldRecord.Blocked_Tasks_in_Sub_Milestones__c = newRecord.Blocked_Tasks_in_Sub_Milestones__c;
-        System.debug('*** Final values are: ' + oldRecord);
     }
 
 }

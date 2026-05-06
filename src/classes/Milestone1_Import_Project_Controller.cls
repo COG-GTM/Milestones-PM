@@ -71,7 +71,7 @@ global with sharing class Milestone1_Import_Project_Controller {
             Milestone1_XML_Import_Utility importUtility = new Milestone1_XML_Import_Utility();
             String xml = '';
             if( fileBody != null && fileName != null ) {
-                system.debug('The Import XML Size == ' + fileBody.size());
+                Logger.info('Import XML size: ' + fileBody.size());
                 if(fileBody.size() > MAX_FILE_SIZE) {
                     fileBody = null; // Null out the large filesize to prevent ViewState Max Size errors.
                     throw new Milestone1_Import_Exception(Milestone1_Import_Exception.ERROR_FILESIZE_TOO_LARGE + ' The number of characters must be less than ' + MAX_FILE_SIZE +'.');
@@ -87,7 +87,6 @@ global with sharing class Milestone1_Import_Project_Controller {
 
             project = importUtility.importProject(xml);
             
-            
         }
         catch( Exception e ) {
             ApexPages.Message errorMsg = new ApexPages.Message( ApexPages.Severity.FATAL, e.getMessage() );
@@ -95,8 +94,10 @@ global with sharing class Milestone1_Import_Project_Controller {
                 errorMsg = new ApexPages.Message(ApexPages.Severity.FATAL,Milestone1_Import_Exception.ERROR_INVALID_XML);
             }
             ApexPages.addMessage( errorMsg );
+            try { Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not affect import */ }
             return ApexPages.currentPage();
         }
+        try { Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not affect import */ }
         return new ApexPages.StandardController(project).view();
     }
    

@@ -46,7 +46,6 @@ public with sharing class Milestone1_Move_Milestone_Extension {
     public Milestone1_Move_Milestone_Extension(ApexPages.StandardController stc)
     {
         Milestone1_Milestone__c currentMilestone = (Milestone1_Milestone__c) stc.getRecord();
-        system.debug('Current Milstone Id == ' + currentMilestone.Id);
         recs = new List<Milestone1_Milestone__c>{currentMilestone};
         milestoneId = currentMilestone.Id;
         processSelection(recs);
@@ -96,7 +95,6 @@ public with sharing class Milestone1_Move_Milestone_Extension {
 	            
 	            //merge both lists so that sub-milestones move with their parents
 	            recs.addAll(subMilestones);
-	            System.debug('*** milestones being moved: ' + recs.size());
 	            
 	            recsById = new Map<Id, Milestone1_Milestone__c>();
 	            for(Milestone1_Milestone__c rec : recs){
@@ -142,7 +140,6 @@ public with sharing class Milestone1_Move_Milestone_Extension {
                 List<Milestone1_Milestone__c> topMilestones = new List<Milestone1_Milestone__c>();
                 List<Milestone1_Milestone__c> bottomMilestones = new List<Milestone1_Milestone__c>();
                 for(Milestone1_Milestone__c rec : recs){
-                    system.debug(rec.Project__c + ' == ' + proj.Id);
                     if(rec.Project__c == proj.Id)
                     {
                         throw new Milestone1_Move_Exception(Milestone1_Move_Exception.ERROR_MILESTONE_ALREADY_ASSIGNED_PROJECT);
@@ -166,9 +163,7 @@ public with sharing class Milestone1_Move_Milestone_Extension {
                     }
                 }
                 
-                System.debug('*** topMilestones: ' + topMilestones);
                 update topMilestones;
-                System.debug('*** bottomMilestones: ' + bottomMilestones);
                 update bottomMilestones;
                 if(milestoneId != null)
                 {
@@ -178,13 +173,13 @@ public with sharing class Milestone1_Move_Milestone_Extension {
                     return stc.cancel();
                 }
             } else {
-                system.debug('Exception thrown!');
+                try { Logger.error('Insufficient permissions for milestone move'); Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not mask error handling */ }
             	return ApexPages.currentPage();
             }
         }
         catch(Exception e)
         {
-            system.debug('Exception thrown!');
+            try { Logger.error('Exception during milestone move: ' + e.getMessage()); Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not mask error handling */ }
             ApexPages.Message errorMsg = new ApexPages.Message(ApexPages.Severity.FATAL, e.getMessage());
             ApexPages.addMessage(errorMsg);
             return ApexPages.currentPage();

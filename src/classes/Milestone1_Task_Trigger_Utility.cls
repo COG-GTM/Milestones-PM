@@ -89,7 +89,6 @@ public class Milestone1_Task_Trigger_Utility {
             //Lets remove the previous Assigned To Follower if oldRec exists, and if the Assignment changed to another user.
             if(oldRec != null && oldRec.Assigned_To__c != null && oldRec.Assigned_To__c != rec.Assigned_To__c)
             {
-                system.debug('Unfollow..');
                 AutoChatterSetting chatterSettings = new AutoChatterSetting(oldRec.Assigned_To__c, oldRec.Assigned_To__r.ProfileId);
                 List<sObject> existingSubscriptionList = userSubscriptionMap.get(oldRec.Assigned_To__c);
                 sObject existingSubscription = getSubscriptionForUserAndRec(oldRec,existingSubscriptionList,userSubscriptionMap);
