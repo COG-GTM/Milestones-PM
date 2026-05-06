@@ -167,11 +167,9 @@ public with sharing class Milestone1_Move_Milestone_Extension {
                 }
                 
                 System.debug('*** topMilestones: ' + topMilestones);
-                SObjectAccessDecision topDecision = Security.stripInaccessible(AccessType.UPDATABLE, topMilestones);
-                update topDecision.getRecords();
+                update topMilestones;
                 System.debug('*** bottomMilestones: ' + bottomMilestones);
-                SObjectAccessDecision bottomDecision = Security.stripInaccessible(AccessType.UPDATABLE, bottomMilestones);
-                update bottomDecision.getRecords();
+                update bottomMilestones;
                 if(milestoneId != null)
                 {
                     return new ApexPages.StandardController(new Milestone1_Milestone__c(Id=milestoneId)).view();
