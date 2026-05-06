@@ -300,7 +300,7 @@ public class Milestone1_Task_Trigger_Utility {
 	        }
 	    	String currentUserId = Userinfo.getUserId();
 	    	String queryStr = 'SELECT UserOrGroupId, RowCause, ParentId, AccessLevel FROM Milestone1_Milestone__Share WHERE ParentId IN :milestoneIds AND UserOrGroupId = :currentUserId AND AccessLevel = \'Read\'';
-	    	obj_share = Database.queryWithBinds(queryStr, new Map<String, Object>{'milestoneIds' => milestoneIds, 'currentUserId' => currentUserId}, AccessLevel.USER_MODE);
+	    	obj_share = Database.queryWithBinds(queryStr, new Map<String, Object>{'milestoneIds' => milestoneIds, 'currentUserId' => currentUserId}, AccessLevel.SYSTEM_MODE);
 	    	
 	    	return obj_share.isEmpty();
         }

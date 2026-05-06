@@ -536,7 +536,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 				}
 			}
 			Sobject sharedObjectFound;
-			List<Sobject> sharedObjects = Database.queryWithBinds(query, new Map<String, Object>{'userId' => userId}, AccessLevel.USER_MODE);
+			List<Sobject> sharedObjects = Database.queryWithBinds(query, new Map<String, Object>{'userId' => userId}, AccessLevel.SYSTEM_MODE);
 			for(Sobject myObject : sobjectList){
 				sharedObjectFound = null;
 				if(myObject.get(reference) != null){
