@@ -133,11 +133,7 @@ public with sharing class Milestone1_Clone_Project_Controller {
             
             Milestone1_Project__c newProj = Milestone1_Clone_Utility.cloneProject(rec);
             
-            if (Schema.sObjectType.Milestone1_Project__c.isCreateable()) {
-            	insert newProj;
-            } else {
-				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-			}
+            insert as user newProj;
             //separate milestone records into parents and subs
             List<Milestone1_Milestone__c> topMilestones = new List<Milestone1_Milestone__c>();
             List<Milestone1_Milestone__c> bottomMilestones = new List<Milestone1_Milestone__c>();
@@ -156,11 +152,7 @@ public with sharing class Milestone1_Clone_Project_Controller {
                 newMS.Project__c = newProj.Id;
             }
             
-            if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-            	insert newTopMilestoneMap.values();
-            } else {
-				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-			}
+            insert as user newTopMilestoneMap.values();
             
             //clone and insert sub milestone records
             Map<String, Milestone1_Milestone__c> newBottomMilestoneMap = Milestone1_Clone_Utility.cloneMilestonesIntoMap(bottomMilestones);
@@ -173,11 +165,7 @@ public with sharing class Milestone1_Clone_Project_Controller {
                 newMS.Parent_Milestone__c = newTopMilestoneMap.get(newMS.Parent_Milestone__c).Id;
             }
             
-            if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-            	insert newBottomMilestoneMap.values();
-            } else {
-				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-			}
+            insert as user newBottomMilestoneMap.values();
             
             //collect all milestones into one map
             Map<String, Milestone1_Milestone__c> allNewMilestoneMap = new Map<String, Milestone1_Milestone__c>();
@@ -191,11 +179,7 @@ public with sharing class Milestone1_Clone_Project_Controller {
         			Milestone1_Task__c.Project_Milestone__c.getDescribe());
                 newTask.Project_Milestone__c = allNewMilestoneMap.get(newTask.Project_Milestone__c).Id;
             }
-            if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
-            	insert newTasks;
-            } else {
-				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-			}
+            insert as user newTasks;
             
             //direct user to cloned project's detail page
             return new ApexPages.StandardController(newProj).view();

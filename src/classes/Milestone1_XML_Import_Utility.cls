@@ -180,11 +180,7 @@ global with sharing class Milestone1_XML_Import_Utility {
             }
         }
         
-        if (Schema.sObjectType.Milestone1_Project__c.isCreateable()) {
-        	insert project;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        insert as user project;
         
 	    for(Milestone1_Milestone__c currentMilestone : milestones)
 	        {
@@ -201,11 +197,7 @@ global with sharing class Milestone1_XML_Import_Utility {
 	            	}
 	        }
         
-        if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-        	insert milestones;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        insert as user milestones;
         
         for(Milestone1_Milestone__c currentMilestone : milestones)
         {
@@ -226,11 +218,7 @@ global with sharing class Milestone1_XML_Import_Utility {
 	        currentMilestone.Predecessor_Milestone__c=null;
 	    }
         
-        if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-	    	insert subMilestones;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        insert as user subMilestones;
         
         /*
         for(Milestone1_Milestone__c currentMilestone : milestones){
@@ -261,11 +249,7 @@ global with sharing class Milestone1_XML_Import_Utility {
         	currentTask.Predecessor_Task__c=null;
         }
 
-        if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
-        	insert tasks;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        insert as user tasks;
 
         system.debug('tasks'+tasks);
         /*
@@ -278,11 +262,7 @@ global with sharing class Milestone1_XML_Import_Utility {
         for(Milestone1_Time__c currentTime : times){
         	matchTimetoTask(tasks,currentTime);
         }
-        if (Schema.sObjectType.Milestone1_Time__c.isCreateable()) {
-        	insert times;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        insert as user times;
     }
     /*
     global void updatePredecessorMilestones(Milestone1_Milestone__c currentMilestone){

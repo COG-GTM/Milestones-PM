@@ -180,11 +180,7 @@ public with sharing class Milestone1_Move_Task_Extension {
             newTask.Project_Milestone__c = ms.Id;
         }
         
-        if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
-        	insert newTasksMap.values();
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        insert as user newTasksMap.values();
 
         List<Milestone1_Log__c> logs = new List<Milestone1_Log__c>();
         if (Schema.sObjectType.Milestone1_Log__c.isAccessible()) {
@@ -199,18 +195,9 @@ public with sharing class Milestone1_Move_Task_Extension {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
         
-        if (Schema.sObjectType.Milestone1_Log__c.isUpdateable()) {
-        	update logs;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        update as user logs;
         
-        DescribeSObjectResult dsr = Milestone1_Task__c.SObjectType.getDescribe();
-        if (!dsr.isDeletable()) {
-        	throw new Milestone1_Exception('Insufficient Privileges');
-        } else {
-            delete recs;
-        }
+        delete as user recs;
             
         if(taskId != null)
         {

@@ -43,7 +43,7 @@ public with sharing class Milestone1_One_Line_Controller {
         {
             String milestoneAlias = stringTokens.get(0).trim();
             Milestone1_Milestone__c milestone = getMilestoneByAlias(milestoneAlias);
-            if((milestone != null) && (Schema.sObjectType.Milestone1_Task__c.isCreateable()))
+            if(milestone != null)
             {
                 try
                 {
@@ -58,7 +58,7 @@ public with sharing class Milestone1_One_Line_Controller {
                     }
                     task.Description__c = descriptionString;
                     task.Project_Milestone__c = milestone.Id;
-                    insert task;
+                    insert as user task;
                     line = '';
                 }catch(Exception e)
                 {

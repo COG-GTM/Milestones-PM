@@ -133,11 +133,7 @@ public with sharing class Milestone1_Clone_Milestone_Controller {
             mainMilestoneList.add(rec);
             Map<String, Milestone1_Milestone__c> newTopMilestoneMap = Milestone1_Clone_Utility.cloneMilestonesIntoMap(mainMilestoneList);
             
-            if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-            	insert newTopMilestoneMap.values();
-            } else {
-				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-			}
+            insert as user newTopMilestoneMap.values();
             
             //clone and insert sub milestone records
             Map<String, Milestone1_Milestone__c> newBottomMilestoneMap = Milestone1_Clone_Utility.cloneMilestonesIntoMap(milestones);
@@ -145,11 +141,7 @@ public with sharing class Milestone1_Clone_Milestone_Controller {
                 newMS.Parent_Milestone__c = newTopMilestoneMap.get(newMS.Parent_Milestone__c).Id;
             }
             
-            if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-            	insert newBottomMilestoneMap.values();
-            } else {
-				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-			}
+            insert as user newBottomMilestoneMap.values();
             
             //collect all milestones into one map
             Map<String, Milestone1_Milestone__c> allNewMilestoneMap = new Map<String, Milestone1_Milestone__c>();
@@ -162,11 +154,7 @@ public with sharing class Milestone1_Clone_Milestone_Controller {
                 newTask.Project_Milestone__c = allNewMilestoneMap.get(newTask.Project_Milestone__c).Id;
             }
             
-            if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
-            	insert newTasks;
-            } else {
-				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-			}    
+            insert as user newTasks;
                 
             pageReference = new ApexPages.StandardController(newTopMilestoneMap.values()[0]).view();
              

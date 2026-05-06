@@ -52,16 +52,11 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
         // Delete / Batch delete milestones
         if( extraChildren.size() > 0 ){
 	    	if( extraChildren.size() + Limits.getDMLRows() > Limits.getLimitDmlRows() ){
+				// TODO: Batch class's execute() method should use `as user` DML internally
 				Database.executeBatch( new Milestone1_Milestone_Batch_Delete(extraChildren) );
 			}
 			else{
-                
-				DescribeSObjectResult dsr = Milestone1_Milestone__c.SObjectType.getDescribe();
-                if (!dsr.isDeletable()) {
-                    throw new Milestone1_Exception('Insufficient Privileges');
-                } else {
-		        	delete extraChildren;
-                }
+		        	delete as user extraChildren;
 			}
         }
         
@@ -107,19 +102,11 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
                         successor.Deadline__c = successor.Deadline__c.addDays(deadlineShift);
                     }
                     
-					if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
                     	successorsToUpdate.addAll(successorMap.get(newRec.Id));
-                    } else {
-						ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-					}
                 }
             }
         }
-		if (Schema.sObjectType.Milestone1_Milestone__c.isUpdateable()) {
-        	update successorsToUpdate;
-		} else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        update as user successorsToUpdate;
     }
     
     public static void checkChildDependencies(Map<Id, Milestone1_Milestone__c> oldMap, Map<Id, Milestone1_Milestone__c> newMap) {
@@ -142,16 +129,12 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	                    child.Deadline__c = child.Deadline__c.addDays(deadlineShift);
 	                }
                     
-                    if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
 	                	childrenToUpdate.addAll(childMap.get(newRec.Id));
-                    } else {
-						ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-					}    
 	            }
             }
         }
         alreadyMadeParent = true;
-        update childrenToUpdate;
+        update as user childrenToUpdate;
     }
     
     public static void checkTaskDependencies(Map<Id, Milestone1_Milestone__c> oldMap, Map<Id, Milestone1_Milestone__c> newMap) {
@@ -180,20 +163,12 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
                     	}
                     }
                     
-                    if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
                     	tasksToUpdate.addAll(taskMap.get(newRec.Id));
-                    } else {
-						ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-					}
                 }
             }
         }
         
-        if (Schema.sObjectType.Milestone1_Task__c.isUpdateable()) {
-        	update tasksToUpdate;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        update as user tasksToUpdate;
     }
 
 	public static void handleMilestoneBeforeTrigger(List<Milestone1_Milestone__c> recs, Map<Id, Milestone1_Milestone__c> recMapById){
@@ -444,7 +419,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     		batchUpdateMilestones(idSet);
     	}
     	else{
-       		update [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :idSet];
+       		update as user [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :idSet];
     	}
     }
     
@@ -455,6 +430,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	*/
 	private static void batchUpdateMilestones( Set<Id> idSet ){
 		if( idSet.size() > 0 ){
+			// TODO: Batch class's execute() method should use `as user` DML internally
 			Database.executeBatch( new Milestone1_Milestone_Batch_Update(idSet) );
 		}
 	}
@@ -465,7 +441,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     		batchUpdateProjects(idSet);
     	}
     	else{
-	        update [SELECT Id FROM Milestone1_Project__c WHERE Id IN :idSet];
+	        update as user [SELECT Id FROM Milestone1_Project__c WHERE Id IN :idSet];
     	}
     }
 
@@ -476,6 +452,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	*/
 	private static void batchUpdateProjects( Set<Id> idSet ){
 		if( idSet.size() > 0 ){
+			// TODO: Batch class's execute() method should use `as user` DML internally
 			Database.executeBatch( new Milestone1_Project_Batch_Update(idSet) );
 		}
 	}
