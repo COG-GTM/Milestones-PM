@@ -40,11 +40,8 @@ public class Milestone1_Task_Trigger_Utility {
         List<sObject> existingSubscriptions = new List<sObject>();
         //Retrieve existing list of Subscriptions for the Task(s) and store in Map by User. Salesforce does not allow user to subscribe to same object more than once so we can store in map.
         if(Milestone1_Schema_Helper.isOrgChatterEnabled()){
-        	String queryString = 'Select Id, ParentId, SubscriberId from EntitySubscription where ParentId in (';
-	        for(Id recId:recIds)
-	        	queryString += '\''+recId+'\',';
-	        queryString = queryString.substring(0,queryString.length()-1) + ')'; //trim the trailing comma 
-	        existingSubscriptions= Database.query(queryString);
+        	String queryString = 'SELECT Id, ParentId, SubscriberId FROM EntitySubscription WHERE ParentId IN :recIds';
+	        existingSubscriptions = Database.queryWithBinds(queryString, new Map<String, Object>{'recIds' => recIds}, AccessLevel.USER_MODE);
         }
         //Create a Map of Users to Subscriptions
         Map<String,List<sObject>> userSubscriptionMap = Milestone1_Task_Trigger_Utility.buildUserSubscriptionMap(existingSubscriptions);
@@ -297,16 +294,13 @@ public class Milestone1_Task_Trigger_Utility {
             return true;
         } 
         else if( Schema.getGlobalDescribe().get('Milestone1_Milestone__Share') != null ){
-	    	String inClause = '(';
+	    	List<Id> milestoneIds = new List<Id>();
 	        for( Milestone1_Task__c cTask : taskList ){
-	            inClause += '\'' + cTask.Project_Milestone__c + '\',';
-	        }             
-	        inClause = inClause.substring( 0, inClause.length() - 1 );
-	        inClause += ')';
-	    	
-	    	String queryStr = 'Select m.UserOrGroupId, m.RowCause, m.ParentId, m.AccessLevel From Milestone1_Milestone__Share m';
-        	queryStr 		+= ' where m.ParentId IN '+ inClause +' AND m.UserOrGroupId = \''+ Userinfo.getUserId() +'\' AND m.AccessLevel = \'Read\'';
-	    	obj_share = Database.query( queryStr );
+	            milestoneIds.add(cTask.Project_Milestone__c);
+	        }
+	    	String currentUserId = Userinfo.getUserId();
+	    	String queryStr = 'SELECT UserOrGroupId, RowCause, ParentId, AccessLevel FROM Milestone1_Milestone__Share WHERE ParentId IN :milestoneIds AND UserOrGroupId = :currentUserId AND AccessLevel = \'Read\'';
+	    	obj_share = Database.queryWithBinds(queryStr, new Map<String, Object>{'milestoneIds' => milestoneIds, 'currentUserId' => currentUserId}, AccessLevel.USER_MODE);
 	    	
 	    	return obj_share.isEmpty();
         }

@@ -118,10 +118,9 @@ public with sharing class Milestone1_Charts_GanttController {
     	
     	String query = 'SELECT ' + String.valueOf(idFieldName) + ',' + String.valueOf(startDateFieldName) + ','
             + String.valueOf(endDateFieldName) + ',' + String.valueOf(nameFieldName) + ',' + String.valueOf(completedFieldName) +
-    		' FROM ' + String.valueOf(objectType) + ' WHERE ' + String.valueOf(filterFieldName) + '=\'' + String.valueOf(mytarget) 
-            + '\' ORDER BY Name';
+    		' FROM ' + String.valueOf(objectType) + ' WHERE ' + String.valueOf(filterFieldName) + ' = :targetId ORDER BY Name';
         
-    	sobjectList = Database.query(query);
+    	sobjectList = Database.queryWithBinds(query, new Map<String, Object>{'targetId' => mytarget}, AccessLevel.USER_MODE);
     }
     
     /**
