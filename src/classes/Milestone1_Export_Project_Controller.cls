@@ -109,11 +109,7 @@ global with sharing class Milestone1_Export_Project_Controller {
             Document.FolderId.getDescribe());
         d.FolderId = UserInfo.getUserId();
         
-        if (Schema.sObjectType.Document.isCreateable()) {
-        	insert d;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        insert as user d;
         
         return d;
   }

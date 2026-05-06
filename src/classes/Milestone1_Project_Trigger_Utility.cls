@@ -165,15 +165,11 @@ public with sharing class Milestone1_Project_Trigger_Utility {
         // Delete / Batch delete milestones
         if( milestones.size() > 0 ){
 	    	if( milestones.size() + Limits.getDMLRows() > Limits.getLimitDmlRows() ){
+				// TODO: Batch class's execute() method should use `as user` DML internally
 				Database.executeBatch( new Milestone1_Milestone_Batch_Delete(milestones) );
 			}
 			else{
-                DescribeSObjectResult dsr = Milestone1_Milestone__c.SObjectType.getDescribe();
-                if (!dsr.isDeletable()) {
-                    throw new Milestone1_Exception('Insufficient Privileges');
-                } else {
-		        	delete milestones;
-                }
+		        	delete as user milestones;
 			}
         }
     }

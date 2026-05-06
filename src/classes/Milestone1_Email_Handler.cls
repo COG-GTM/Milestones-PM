@@ -189,11 +189,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         newTask.Email_GUID__c = email.messageId;
         newTask.Last_Email_Received__c = Datetime.now();
         
-        if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
-        	insert newTask;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        insert as user newTask;
         
         system.debug('New Task ID == ' + newTask.Id);
         return newTask;
@@ -205,11 +201,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         msTask.Complete__c = false;
         msTask.Last_Email_Received__c = Datetime.now();
         
-        if (Schema.sObjectType.Milestone1_Task__c.isUpdateable()) {
-        	update msTask;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        update as user msTask;
         
         system.debug('The task ReplyTo chain: ' + msTask.Email_GUID__c);
         return msTask;
@@ -222,11 +214,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         newNote.title = email.subject;
         newNote.body = email.plainTextBody;
         
-        if (Schema.sObjectType.Note.isCreateable()) {
-        	insert newNote;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        insert as user newNote;
         
         system.debug('New Note ID == ' + newNote.Id);
         return newNote;
@@ -306,11 +294,9 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
             }
         }
         system.debug('Insert the Attachments. Number is ' + insertAttachments.size());
-        if ((insertAttachments.size() > 0) && (Schema.sObjectType.Attachment.isCreateable())) {
-            insert insertAttachments;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        if (insertAttachments.size() > 0) {
+            insert as user insertAttachments;
+        }
     }       
     
     /**

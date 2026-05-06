@@ -147,29 +147,21 @@ public with sharing class Milestone1_Move_Milestone_Extension {
                     {
                         throw new Milestone1_Move_Exception(Milestone1_Move_Exception.ERROR_MILESTONE_ALREADY_ASSIGNED_PROJECT);
                     }
-                    if (Schema.sObjectType.Milestone1_Milestone__c.fields.Project__c.isUpdateable()) {
-                        rec.Project__c = proj.Id;
-                    } else {
-                        throw new Milestone1_Exception('Insufficient Privileges');
-                    }
+                    rec.Project__c = proj.Id;
                     if(rec.Parent_Milestone__c == null){
                         topMilestones.add(rec);
                     } else {
                         if(recsById.get(rec.Parent_Milestone__c) == null){
-                            if (Schema.sObjectType.Milestone1_Milestone__c.fields.Parent_Milestone__c.isUpdateable()) {
                                 rec.Parent_Milestone__c = null;
-                            } else {
-                                throw new Milestone1_Exception('Insufficient Privileges');
-                            }
                         }
                         bottomMilestones.add(rec);
                     }
                 }
                 
                 System.debug('*** topMilestones: ' + topMilestones);
-                update topMilestones;
+                update as user topMilestones;
                 System.debug('*** bottomMilestones: ' + bottomMilestones);
-                update bottomMilestones;
+                update as user bottomMilestones;
                 if(milestoneId != null)
                 {
                     return new ApexPages.StandardController(new Milestone1_Milestone__c(Id=milestoneId)).view();

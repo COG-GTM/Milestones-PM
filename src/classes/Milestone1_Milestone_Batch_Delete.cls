@@ -50,12 +50,7 @@ global with sharing class Milestone1_Milestone_Batch_Delete implements Database.
 	global void execute(Database.BatchableContext BC, List<sObject> milestoneScope){
         
         if (milestoneScope.size() > 0) {
-            DescribeSObjectResult dsr = milestoneScope[0].getSObjectType().getDescribe();
-            if (!dsr.isDeletable()) {
-        		throw new Milestone1_Exception('Insufficient Privileges');
-            } else {
-            	delete milestoneScope;
-            }
+            delete as user milestoneScope;
         }
         
 	}

@@ -146,11 +146,7 @@ public class Milestone1_Task_Trigger_Utility {
                 }
             }
         }
-        if (Schema.sObjectType.Milestone1_Task__c.isUpdateable()) {
-            update successorsToUpdate;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        update as user successorsToUpdate;
     }
     
     public static sObject getSubscriptionForUserAndRec(Milestone1_Task__c rec, List<sObject> existingSubscriptionList, Map<String,List<sObject>> userSubscriptionMap)
