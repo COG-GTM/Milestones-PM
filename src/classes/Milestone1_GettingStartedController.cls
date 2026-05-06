@@ -104,11 +104,7 @@ public with sharing class Milestone1_GettingStartedController {
             
         	List<Document> docs = new List<Document>();
                 
-			if (Schema.sObjectType.Document.isAccessible()) {
-            	docs = [Select d.Name, d.Id, d.Body From Document d Where d.Name = 'Starter Project (LPM1)'];
-            } else {
-				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-			}
+			docs = [Select d.Name, d.Id, d.Body From Document d Where d.Name = 'Starter Project (LPM1)' WITH USER_MODE];
             
             if (docs.size() == 1) {
                 Document startProject = docs.get(0);
@@ -122,14 +118,9 @@ public with sharing class Milestone1_GettingStartedController {
                 //Milestones
                 List<Milestone1_Milestone__c> milestonesRetrieved = new List<Milestone1_Milestone__c>();
                 
-                if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible() && Schema.sObjectType.Milestone1_Project__c.isAccessible()
-                && Schema.sObjectType.Milestone1_Task__c.isAccessible()) {
-                	milestonesRetrieved = [Select m.Name, m.Kickoff__c, m.Id, m.Alias__c, m.Deadline__c, m.Project__c,
+                milestonesRetrieved = [Select m.Name, m.Kickoff__c, m.Id, m.Alias__c, m.Deadline__c, m.Project__c,
                     (Select Id, Name, Blocked_Reason__c, Blocked__c, Complete__c, Due_Date__c, Priority__c, Start_Date__c 
-                    From Project_Tasks__r) From Milestone1_Milestone__c m WHERE m.Project__c = :project.id Order By m.Name];
-                } else {
-					ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-				}    
+                    From Project_Tasks__r) From Milestone1_Milestone__c m WHERE m.Project__c = :project.id Order By m.Name WITH USER_MODE];    
                 
                 //start day = 3 days ago
                 if (Schema.sObjectType.Milestone1_Project__c.fields.Kickoff__c.isUpdateable()) {
@@ -161,11 +152,7 @@ public with sharing class Milestone1_GettingStartedController {
                 
                 integer aliasCount;
                 //milestones
-                if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible()) {    
-                	aliasCount = [Select count() from Milestone1_Milestone__c Where Alias__c LIKE 'DEMO_%'];
-                } else {
-					ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-				}    
+                aliasCount = [Select count() from Milestone1_Milestone__c Where Alias__c LIKE 'DEMO_%' WITH USER_MODE];    
                     
                 for (Milestone1_Milestone__c current : milestonesRetrieved) {
                     aliasCount++;
@@ -265,7 +252,7 @@ public with sharing class Milestone1_GettingStartedController {
             
         
             /*
-            List<Report> reports = [Select Id, Name from Report Where Name like '%(LPM1)'];
+            List<Report> reports = [Select Id, Name from Report Where Name like '%(LPM1)' WITH USER_MODE];
             
             Id blockedTasks;
             Id myTasks;

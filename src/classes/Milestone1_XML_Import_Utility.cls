@@ -168,7 +168,7 @@ global with sharing class Milestone1_XML_Import_Utility {
         
         //attempt to validate 10 variations of the name
         String targetName = '%' + project.Name + '%';
-        Integer existingLikeName = [Select Count() from Milestone1_Project__c where Name LIKE :targetName];
+        Integer existingLikeName = [Select Count() from Milestone1_Project__c where Name LIKE :targetName WITH USER_MODE];
         
         if(existingLikeName!=null && existingLikeName > 0)
         {

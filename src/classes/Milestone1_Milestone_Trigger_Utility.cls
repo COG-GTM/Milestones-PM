@@ -38,15 +38,12 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
         //query for list of child milestones that are NOT part of the recs collection
         List<Milestone1_Milestone__c> extraChildren = new List<Milestone1_Milestone__c>();
 
-        if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible()) {
-            extraChildren = [SELECT Id
-                             FROM Milestone1_Milestone__c
-                             WHERE Parent_Milestone__c IN :oldMap.keySet()
-                             AND Id NOT IN :oldMap.keySet()
-                            ];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        // System mode intentional: cascade delete must see all child milestones to prevent orphans
+        extraChildren = [SELECT Id
+                         FROM Milestone1_Milestone__c
+                         WHERE Parent_Milestone__c IN :oldMap.keySet()
+                         AND Id NOT IN :oldMap.keySet()
+                        ];
 
         
         // Delete / Batch delete milestones
@@ -90,6 +87,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     */
     public static void checkSuccessorDependencies(Map<Id, Milestone1_Milestone__c> oldMap, Map<Id, Milestone1_Milestone__c> newMap) {
         Map<Id, Set<Milestone1_Milestone__c>> successorMap = new Map<Id, Set<Milestone1_Milestone__c>>();
+        // System mode intentional: trigger cascade must see all successor milestones to maintain date integrity
         for(Milestone1_Milestone__c successor: [SELECT Id, Kickoff__c, Deadline__c, Predecessor_Milestone__c FROM Milestone1_Milestone__c WHERE Predecessor_Milestone__c IN :newMap.keySet()]) {
             if(!successorMap.containsKey(successor.Predecessor_Milestone__c)) {
                 successorMap.put(successor.Predecessor_Milestone__c, new Set<Milestone1_Milestone__c>());
@@ -124,6 +122,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     
     public static void checkChildDependencies(Map<Id, Milestone1_Milestone__c> oldMap, Map<Id, Milestone1_Milestone__c> newMap) {
         Map<Id, Set<Milestone1_Milestone__c>> childMap = new Map<Id, Set<Milestone1_Milestone__c>>();
+        // System mode intentional: trigger cascade must see all child milestones to maintain date integrity
         for(Milestone1_Milestone__c child: [SELECT Id, Kickoff__c, Deadline__c, Parent_Milestone__c FROM Milestone1_Milestone__c WHERE Parent_Milestone__c IN :newMap.keySet()]) {
             if(!childMap.containsKey(child.Parent_Milestone__c)) {
                 childMap.put(child.Parent_Milestone__c, new Set<Milestone1_Milestone__c>());
@@ -156,6 +155,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     
     public static void checkTaskDependencies(Map<Id, Milestone1_Milestone__c> oldMap, Map<Id, Milestone1_Milestone__c> newMap) {
         Map<Id, Set<Milestone1_Task__c>> taskMap = new Map<Id, Set<Milestone1_Task__c>>();
+        // System mode intentional: trigger cascade must see all tasks under milestones to maintain date integrity
         for(Milestone1_Task__c task: [SELECT Id, Start_Date__c, Due_Date__c, Project_Milestone__c FROM Milestone1_Task__c WHERE Project_Milestone__c IN :newMap.keySet()]) {
             if(!taskMap.containsKey(task.Project_Milestone__c)) {
                 taskMap.put(task.Project_Milestone__c, new Set<Milestone1_Task__c>());
@@ -216,6 +216,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
             
 	        if(parentMilestoneIds.size() > 0){
                 
+                // System mode intentional: trigger must see parent milestones for validation and project assignment
                 List<Milestone1_Milestone__c> parentMilestones = [SELECT Id, Project__c, Parent_Milestone__c
 	                                       FROM Milestone1_Milestone__c
 	                                       WHERE Id IN :parentMilestoneIds
@@ -244,6 +245,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	        List<Milestone1_Milestone__c> extraChildren = new List<Milestone1_Milestone__c>();
 	        if(recMapById != null && recMapById.size() > 0){
                 
+	            	// System mode intentional: trigger rollup must see all child milestones for accurate totals
 	            	extraChildren = [SELECT Id,
 	                                    Name,
 	                                    Parent_Milestone__c,
@@ -280,6 +282,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	        List<Milestone1_Task__c> lateTasks = new List<Milestone1_Task__c>();
             
             if(recMapById != null && recMapById.size() > 0){
+                // System mode intentional: trigger must see all late tasks for accurate milestone counts
                 lateTasks = [SELECT Id,
                              Project_Milestone__c
                              FROM Milestone1_Task__c
@@ -444,6 +447,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     		batchUpdateMilestones(idSet);
     	}
     	else{
+       		// System mode intentional: cascade update must touch all parent milestones for rollup recalculation
        		update [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :idSet];
     	}
     }
@@ -465,6 +469,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     		batchUpdateProjects(idSet);
     	}
     	else{
+	        // System mode intentional: cascade update must touch all parent projects for rollup recalculation
 	        update [SELECT Id FROM Milestone1_Project__c WHERE Id IN :idSet];
     	}
     }
@@ -538,6 +543,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 			String querySharedObjects = query.replace('$1',sharedObjectName);
 			querySharedObjects = querySharedObjects.replace('$3',userId);
 			Sobject sharedObjectFound;
+			// System mode intentional: __Share objects require system-level access for non-admin users
 			List<Sobject> sharedObjects = Database.query(querySharedObjects);
 			for(Sobject myObject : sobjectList){
 				sharedObjectFound = null;
@@ -609,7 +615,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 		
         if (Schema.sObjectType.Milestone1_Milestone__c.isUpdateable()) {
             try{
-                update [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :mList];
+                update [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :mList WITH USER_MODE];
                 system.assert(true, 'Milestones update successful');
             }
             catch(Exception e){

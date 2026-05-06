@@ -47,13 +47,7 @@ public with sharing class Milestone1_repeatCon {
  public String selectedProject {get;set;}
  
  public List<Milestone1_Project__c> getAllProjectItems() {
-     if (Schema.sObjectType.Milestone1_Project__c.isAccessible()) {
-     	return [Select Id, Name from Milestone1_Project__c where Status__c ='Active' limit 500];
-     } else {
-		ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-        List<Milestone1_Project__c> emptyList = new List<Milestone1_Project__c>();
-        return emptyList;
-	 }
+     return [Select Id, Name from Milestone1_Project__c where Status__c ='Active' limit 500 WITH USER_MODE];
  }
 
  private Map<ID,Milestone1_Project__c> getSelectedProject(){
@@ -66,7 +60,7 @@ public with sharing class Milestone1_repeatCon {
             }
         } else {
             if (Schema.sObjectType.Milestone1_Project__c.isCreateable()) {
-        		Milestone1_Project__c project = [Select id from Milestone1_Project__c where id =:  selectedProject];
+        		Milestone1_Project__c project = [Select id from Milestone1_Project__c where id =:  selectedProject WITH USER_MODE];
             	projMap.put(project.id,project);
             } else {
 				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
@@ -81,8 +75,8 @@ public with sharing class Milestone1_repeatCon {
     milestoneIds.clear();
     Map<ID,Milestone1_Milestone__c> milestonesMap=new  Map<ID,Milestone1_Milestone__c>();
     
-    if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable() && Schema.sObjectType.Milestone1_Project__c.isAccessible()) {
-        for(Milestone1_Milestone__c m:[Select Id from Milestone1_Milestone__c where Project__c in : projectIds limit 500])
+    if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
+        for(Milestone1_Milestone__c m:[Select Id from Milestone1_Milestone__c where Project__c in : projectIds limit 500 WITH USER_MODE])
         {
           milestonesMap.put(m.Id,m);
           //  milestoneIds.add(m.Id);
@@ -219,31 +213,25 @@ public with sharing class Milestone1_repeatCon {
     List<Milestone1_Milestone__c> milestones = new List<Milestone1_Milestone__c>();
     List<Milestone1_Task__c> tasks = new List<Milestone1_Task__c>();
       
-    if (Schema.sObjectType.Milestone1_Project__c.isAccessible() && Schema.sObjectType.Milestone1_Milestone__c.isAccessible()
-        && Schema.sObjectType.Milestone1_Task__c.isAccessible()) {
-    	
-        projects = [Select Id, Deadline__c, Name from Milestone1_Project__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and id in :projectIds limit 500];
-        milestones = [Select Id, Deadline__c, Name from Milestone1_Milestone__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and Project__c in :projectIds LIMIT 500];
-        tasks = [Select Id, Due_Date__c, Name from Milestone1_Task__c where Due_Date__c >=:da[0] and Due_Date__c <= :da[1] and Project_Milestone__c in :milestoneIds LIMIT 500];
-        
-        for(Milestone1_Project__c proj : projects)
-        {
-           Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(proj.Id,proj.Name,proj.Deadline__c,Milestone1_Calendar_Item.PROJECT_TYPE);
-           events.add(calItem);
-        }
-        for(Milestone1_Milestone__c milestone : milestones)
-        {
-           Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(milestone.Id,milestone.Name,milestone.Deadline__c,Milestone1_Calendar_Item.MILESTONE_TYPE);
-           events.add(calItem);
-        }
-        for(Milestone1_Task__c currTask : tasks)
-        {
-           Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(currTask.Id,currTask.Name,currTask.Due_Date__c,Milestone1_Calendar_Item.TASK_TYPE);
-           events.add(calItem);
-        }
-    } else {
-		ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-	}
+    projects = [Select Id, Deadline__c, Name from Milestone1_Project__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and id in :projectIds limit 500 WITH USER_MODE];
+    milestones = [Select Id, Deadline__c, Name from Milestone1_Milestone__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and Project__c in :projectIds LIMIT 500 WITH USER_MODE];
+    tasks = [Select Id, Due_Date__c, Name from Milestone1_Task__c where Due_Date__c >=:da[0] and Due_Date__c <= :da[1] and Project_Milestone__c in :milestoneIds LIMIT 500 WITH USER_MODE];
+    
+    for(Milestone1_Project__c proj : projects)
+    {
+       Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(proj.Id,proj.Name,proj.Deadline__c,Milestone1_Calendar_Item.PROJECT_TYPE);
+       events.add(calItem);
+    }
+    for(Milestone1_Milestone__c milestone : milestones)
+    {
+       Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(milestone.Id,milestone.Name,milestone.Deadline__c,Milestone1_Calendar_Item.MILESTONE_TYPE);
+       events.add(calItem);
+    }
+    for(Milestone1_Task__c currTask : tasks)
+    {
+       Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(currTask.Id,currTask.Name,currTask.Due_Date__c,Milestone1_Calendar_Item.TASK_TYPE);
+       events.add(calItem);
+    }
     
     return events;
   }
@@ -259,36 +247,30 @@ public with sharing class Milestone1_repeatCon {
     getProjectSpecificMilestone();
     List<Milestone1_Calendar_Item> events = new List<Milestone1_Calendar_Item>();
      
-	if (Schema.sObjectType.Milestone1_Project__c.isAccessible() && Schema.sObjectType.Milestone1_Milestone__c.isAccessible()
-        && Schema.sObjectType.Milestone1_Task__c.isAccessible()) {
-            
-        List<Milestone1_Project__c> projects = [Select Id, Deadline__c, Name from Milestone1_Project__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and OwnerId =:Userinfo.getUserId() and id in :projectIds limit 500];
-        List<String> projectIds = new List<String>();
-        for(Milestone1_Project__c proj : projects)
-        {
-            projectIds.add(proj.Id);
-            Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(proj.Id,proj.Name,proj.Deadline__c,Milestone1_Calendar_Item.PROJECT_TYPE);
-            events.add(calItem);
-        }
-        
-        List<Milestone1_Milestone__c> milestones = [Select Id, Deadline__c, Name from Milestone1_Milestone__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and Project__c in :projectIds limit 500];
-        List<String> milestoneIds = new List<String>();
-        for(Milestone1_Milestone__c milestone : milestones)
-        {
-            milestoneIds.add(milestone.Id);
-            Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(milestone.Id,milestone.Name,milestone.Deadline__c,Milestone1_Calendar_Item.MILESTONE_TYPE);
-            events.add(calItem);
-        }
-        
-        List<Milestone1_Task__c> tasks = [Select Id, Due_Date__c, Name from Milestone1_Task__c where Due_Date__c >=:da[0] and Due_Date__c <= :da[1] and Project_Milestone__c in:milestoneIds limit 500];
-        for(Milestone1_Task__c currTask : tasks)
-        {
-            Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(currTask.Id,currTask.Name,currTask.Due_Date__c,Milestone1_Calendar_Item.TASK_TYPE);
-            events.add(calItem);
-        }
-    } else {
-		ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-	}
+    List<Milestone1_Project__c> projects = [Select Id, Deadline__c, Name from Milestone1_Project__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and OwnerId =:Userinfo.getUserId() and id in :projectIds limit 500 WITH USER_MODE];
+    List<String> projectIds = new List<String>();
+    for(Milestone1_Project__c proj : projects)
+    {
+        projectIds.add(proj.Id);
+        Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(proj.Id,proj.Name,proj.Deadline__c,Milestone1_Calendar_Item.PROJECT_TYPE);
+        events.add(calItem);
+    }
+    
+    List<Milestone1_Milestone__c> milestones = [Select Id, Deadline__c, Name from Milestone1_Milestone__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and Project__c in :projectIds limit 500 WITH USER_MODE];
+    List<String> milestoneIds = new List<String>();
+    for(Milestone1_Milestone__c milestone : milestones)
+    {
+        milestoneIds.add(milestone.Id);
+        Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(milestone.Id,milestone.Name,milestone.Deadline__c,Milestone1_Calendar_Item.MILESTONE_TYPE);
+        events.add(calItem);
+    }
+    
+    List<Milestone1_Task__c> tasks = [Select Id, Due_Date__c, Name from Milestone1_Task__c where Due_Date__c >=:da[0] and Due_Date__c <= :da[1] and Project_Milestone__c in:milestoneIds limit 500 WITH USER_MODE];
+    for(Milestone1_Task__c currTask : tasks)
+    {
+        Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(currTask.Id,currTask.Name,currTask.Due_Date__c,Milestone1_Calendar_Item.TASK_TYPE);
+        events.add(calItem);
+    }
     
     return events;
   }
@@ -305,18 +287,14 @@ public with sharing class Milestone1_repeatCon {
     getSelectedProject();
     getProjectSpecificMilestone();
     
-	List<Milestone1_Milestone__c> milestones = [Select Id, Deadline__c, Name from Milestone1_Milestone__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and OwnerId =:Userinfo.getUserId() and Project__c in : projectIds LIMIT 500 ];       
+	List<Milestone1_Milestone__c> milestones = [Select Id, Deadline__c, Name from Milestone1_Milestone__c where Deadline__c >=:da[0] and Deadline__c <= :da[1] and OwnerId =:Userinfo.getUserId() and Project__c in : projectIds LIMIT 500 WITH USER_MODE];       
     List<Milestone1_Calendar_Item> events = new List<Milestone1_Calendar_Item>();
       
-    if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible()) {  
-        for(Milestone1_Milestone__c milestone : milestones)
-        {
-            Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(milestone.Id,milestone.Name,milestone.Deadline__c,Milestone1_Calendar_Item.MILESTONE_TYPE);
-            events.add(calItem);
-        }
-    } else {
-		ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-	}
+    for(Milestone1_Milestone__c milestone : milestones)
+    {
+        Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(milestone.Id,milestone.Name,milestone.Deadline__c,Milestone1_Calendar_Item.MILESTONE_TYPE);
+        events.add(calItem);
+    }
       
     return events;
   }
@@ -331,18 +309,14 @@ public with sharing class Milestone1_repeatCon {
     */
     getSelectedProject();
     getProjectSpecificMilestone();
-    List<Milestone1_Task__c> tasks = [Select Id, Due_Date__c, Name from Milestone1_Task__c where Due_Date__c >=:da[0] and Due_Date__c <= :da[1] and Assigned_To__c =:Userinfo.getUserId() and Project_Milestone__c in : milestoneIds LIMIT 500 ];
+    List<Milestone1_Task__c> tasks = [Select Id, Due_Date__c, Name from Milestone1_Task__c where Due_Date__c >=:da[0] and Due_Date__c <= :da[1] and Assigned_To__c =:Userinfo.getUserId() and Project_Milestone__c in : milestoneIds LIMIT 500 WITH USER_MODE];
     List<Milestone1_Calendar_Item> events = new List<Milestone1_Calendar_Item>();
       
-    if (Schema.sObjectType.Milestone1_Task__c.isAccessible()) {  
-        for(Milestone1_Task__c currTask : tasks)
-        {
-            Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(currTask.Id,currTask.Name,currTask.Due_Date__c,Milestone1_Calendar_Item.TASK_TYPE);
-            events.add(calItem);
-        }
-    } else {
-		ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-	}
+    for(Milestone1_Task__c currTask : tasks)
+    {
+        Milestone1_Calendar_Item calItem = new Milestone1_Calendar_Item(currTask.Id,currTask.Name,currTask.Due_Date__c,Milestone1_Calendar_Item.TASK_TYPE);
+        events.add(calItem);
+    }
     return events;
   }
   
@@ -423,7 +397,7 @@ public with sharing class Milestone1_repeatCon {
         system.assertEquals(milestonesMap.containsKey(testMilestone.id),true);
         List<Id> mIds=new List<Id>();
         mIds.add(testMilestone.id);
-        List<Milestone1_Task__c> tasksList=[Select Id from Milestone1_Task__c where Assigned_To__c =:Userinfo.getUserId() and Project_Milestone__c in : mIds ];
+        List<Milestone1_Task__c> tasksList=[Select Id from Milestone1_Task__c where Assigned_To__c =:Userinfo.getUserId() and Project_Milestone__c in : mIds WITH USER_MODE];
         for(Milestone1_Task__c task:tasksList)
         {
             if(testTask.id==task.id)
@@ -595,7 +569,7 @@ public with sharing class Milestone1_repeatCon {
         system.assertEquals(projMap.containsKey(testProject1.id),true);
         system.assertEquals(milestonesMap.containsKey(testMilestone.id),true);
         system.assertEquals(milestonesMap.containsKey(testMilestone1.id),true);
-        Milestone1_Task__c task=[Select id,name from Milestone1_Task__c where id =: testTask.id];
+        Milestone1_Task__c task=[Select id,name from Milestone1_Task__c where id =: testTask.id WITH USER_MODE];
         system.assertEquals(testTask.id,task.id);
         
     }
@@ -639,7 +613,7 @@ static testMethod void testControllerFilterMyProjectsWithBlankProject()
         system.assertEquals(projMap.containsKey(testProject.id),true);
         system.assertEquals(projMap.containsKey(testProject1.id),true);
         system.assertEquals(milestonesMap.containsKey(testMilestone.id),true);
-        Milestone1_Task__c task=[Select id,name from Milestone1_Task__c where id =: testTask.id];
+        Milestone1_Task__c task=[Select id,name from Milestone1_Task__c where id =: testTask.id WITH USER_MODE];
         system.assertEquals(testTask.id,task.id);
   }
   
@@ -720,9 +694,9 @@ static testMethod void testControllerFilterMyProjectsWithBlankProject()
         test.stopTest();
         Map<ID,Milestone1_Project__c> projMap= controller.getSelectedProject();
         Map<ID,Milestone1_Milestone__c> milestonesMap=controller.getProjectSpecificMilestone();
-        Milestone1_Task__c task=[Select id,name from Milestone1_Task__c where id =: testTask.id];
+        Milestone1_Task__c task=[Select id,name from Milestone1_Task__c where id =: testTask.id WITH USER_MODE];
         system.assertEquals(testTask.id,task.id);
-        task=[Select id,name from Milestone1_Task__c where id =: testTask1.id];
+        task=[Select id,name from Milestone1_Task__c where id =: testTask1.id WITH USER_MODE];
         system.assertEquals(testTask1.id,task.id);
   }
   

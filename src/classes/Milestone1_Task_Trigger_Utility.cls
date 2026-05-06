@@ -44,6 +44,7 @@ public class Milestone1_Task_Trigger_Utility {
 	        for(Id recId:recIds)
 	        	queryString += '\''+recId+'\',';
 	        queryString = queryString.substring(0,queryString.length()-1) + ')'; //trim the trailing comma 
+	        // System mode intentional: trigger utility must see all subscriptions regardless of running user
 	        existingSubscriptions= Database.query(queryString);
         }
         //Create a Map of Users to Subscriptions
@@ -126,6 +127,7 @@ public class Milestone1_Task_Trigger_Utility {
     
     public static void checkSuccessorDependencies(Map<Id, Milestone1_Task__c> oldMap, Map<Id, Milestone1_Task__c> newMap) {
         Map<Id, Set<Milestone1_Task__c>> successorMap = new Map<Id, Set<Milestone1_Task__c>>();
+        // System mode intentional: trigger cascade must see all successor tasks to maintain date integrity
         for(Milestone1_Task__c successor: [SELECT Id, Start_Date__c, Due_Date__c, Predecessor_Task__c FROM Milestone1_Task__c WHERE Predecessor_Task__c IN :newMap.keySet() AND Id NOT IN :newMap.keySet()]) {
             if(!successorMap.containsKey(successor.Predecessor_Task__c)) {
                 successorMap.put(successor.Predecessor_Task__c, new Set<Milestone1_Task__c>());
@@ -234,11 +236,8 @@ public class Milestone1_Task_Trigger_Utility {
         for(Milestone1_Task__c rec : recs) { ids.add(rec.Project_Milestone__c); }
         List<Milestone1_Milestone__c> parentMilestones = new List<Milestone1_Milestone__c>();
         
-        if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible()) {
-            parentMilestones = [Select Id, Name, Deadline__c, KickOff__c from Milestone1_Milestone__c where Id in :ids];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        // System mode intentional: trigger utility must see parent milestones to default task dates
+        parentMilestones = [Select Id, Name, Deadline__c, KickOff__c from Milestone1_Milestone__c where Id in :ids];
         
         Map<String,Milestone1_Milestone__c> taskMilestoneMap = new Map<String,Milestone1_Milestone__c>();
         for( Milestone1_Milestone__c parentMilestone : parentMilestones ) {
@@ -306,6 +305,7 @@ public class Milestone1_Task_Trigger_Utility {
 	    	
 	    	String queryStr = 'Select m.UserOrGroupId, m.RowCause, m.ParentId, m.AccessLevel From Milestone1_Milestone__Share m';
         	queryStr 		+= ' where m.ParentId IN '+ inClause +' AND m.UserOrGroupId = \''+ Userinfo.getUserId() +'\' AND m.AccessLevel = \'Read\'';
+	    	// System mode intentional: trigger utility queries __Share objects which require system-level access
 	    	obj_share = Database.query( queryStr );
 	    	
 	    	return obj_share.isEmpty();

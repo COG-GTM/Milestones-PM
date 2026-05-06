@@ -38,71 +38,60 @@ public with sharing class Milestone1_Clone_Project_Controller {
     
     public Milestone1_Clone_Project_Controller(ApexPages.StandardController stc){
         
-		if (Schema.sObjectType.Milestone1_Project__c.isAccessible() && Schema.sObjectType.Milestone1_Milestone__c.isAccessible()
-           && Schema.sObjectType.Milestone1_Task__c.isAccessible()) {
-               
-               //query project record
-        		rec = [SELECT Id,
-                      Name,
-                      Deadline__c,
-                      Description__c,
-                      Status__c,
-                      Total_Expense_Budget__c,
-                      Total_Hours_Budget__c,
-                      KickOff__c,
-                      OwnerId                      
-               FROM Milestone1_Project__c
-               WHERE Id = :stc.getId()
-               ];
+		//query project record
+		rec = [SELECT Id,
+                  Name,
+                  Deadline__c,
+                  Description__c,
+                  Status__c,
+                  Total_Expense_Budget__c,
+                  Total_Hours_Budget__c,
+                  KickOff__c,
+                  OwnerId                      
+           FROM Milestone1_Project__c
+           WHERE Id = :stc.getId() WITH USER_MODE
+           ];
         
-        	//query milestone records
-        	milestones = [SELECT Id,
-                             Name,
-                             Parent_Milestone__c,
-                             Complete__c,
-                             Deadline__c,
-                             Description__c,
-                             Expense_Budget__c,
-                             Hours_Budget__c,
-                             OwnerId,
-                             KickOff__c
-                      FROM Milestone1_Milestone__c
-                      WHERE Project__c = :rec.Id
-                     ];
+		//query milestone records
+		milestones = [SELECT Id,
+                         Name,
+                         Parent_Milestone__c,
+                         Complete__c,
+                         Deadline__c,
+                         Description__c,
+                         Expense_Budget__c,
+                         Hours_Budget__c,
+                         OwnerId,
+                         KickOff__c
+                  FROM Milestone1_Milestone__c
+                  WHERE Project__c = :rec.Id WITH USER_MODE
+                 ];
         
-        	//query task records 
-        	tasks = [SELECT Id,
-                        Name,
-                        Project_Milestone__c,
-                        Assigned_To__c,
-                        Complete__c,
-                        Description__c,
-                        Start_Date__c,
-                        Due_Date__c,
-                        Priority__c,
-                        Task_Stage__c,
-                        Class__c,
-                        Blocked__c,
-                        Blocked_Reason__c,
-                        Last_Email_Received__c,
-                        Estimated_Hours__c,
-                        Estimated_Expense__c
-                 FROM Milestone1_Task__c
-                 WHERE Project_Milestone__r.Project__c = :rec.Id
-                ];
-            
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+		//query task records 
+		tasks = [SELECT Id,
+                    Name,
+                    Project_Milestone__c,
+                    Assigned_To__c,
+                    Complete__c,
+                    Description__c,
+                    Start_Date__c,
+                    Due_Date__c,
+                    Priority__c,
+                    Task_Stage__c,
+                    Class__c,
+                    Blocked__c,
+                    Blocked_Reason__c,
+                    Last_Email_Received__c,
+                    Estimated_Hours__c,
+                    Estimated_Expense__c
+             FROM Milestone1_Task__c
+             WHERE Project_Milestone__r.Project__c = :rec.Id WITH USER_MODE
+            ];
                 
         dummyProj = new Milestone1_Project__c();
         dummyProj.Name = 'Copy of ' + rec.Name;
         
-        if (Schema.sObjectType.User.isAccessible()) {
-        	statusList = [SELECT IsActive from User where id = :rec.OwnerId];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        statusList = [SELECT IsActive from User where id = :rec.OwnerId WITH USER_MODE];
         
         if(statusList  != null && statusList.size() > 0 )
             isProjOwnerActive = statusList[0].IsActive;

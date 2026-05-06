@@ -81,7 +81,7 @@ public with sharing class Milestone1_Move_Milestone_Extension {
 	                           Project__c,
 	                           Parent_Milestone__c
 	                    FROM Milestone1_Milestone__c
-	                    WHERE Id IN :recIds
+	                    WHERE Id IN :recIds WITH USER_MODE
 	                   ];
 	    
 	            //query sub milestone records
@@ -91,7 +91,7 @@ public with sharing class Milestone1_Move_Milestone_Extension {
 	                                    Project__c,
 	                                    Parent_Milestone__c
 	                             FROM Milestone1_Milestone__c
-	                             WHERE Parent_Milestone__c IN :recIds
+	                             WHERE Parent_Milestone__c IN :recIds WITH USER_MODE
 	                            ];
 	            
 	            //merge both lists so that sub-milestones move with their parents
@@ -121,12 +121,12 @@ public with sharing class Milestone1_Move_Milestone_Extension {
         try
         {
             if(checkPermissions()){
-                Milestone1_Project__c proj = [SELECT Id FROM Milestone1_Project__c WHERE Id = :dummyMS.Project__c];
+                Milestone1_Project__c proj = [SELECT Id FROM Milestone1_Project__c WHERE Id = :dummyMS.Project__c WITH USER_MODE];
                 
                 //check to see if move candidates have successor tasks.  If so, they should fail.
                 //checkPermissions() called at beginning of method
                 List<Milestone1_Milestone__c> candidateSuccessors = [Select Id From Milestone1_Milestone__c Where 
-                    Predecessor_Milestone__c in :topRecs];
+                    Predecessor_Milestone__c in :topRecs WITH USER_MODE];
                 if (candidateSuccessors.size() > 0) {
                     throw new Milestone1_Move_Exception(Milestone1_Move_Exception.ERROR_MILESTONE_HAS_SUCCESSORS);
                 }
@@ -134,7 +134,7 @@ public with sharing class Milestone1_Move_Milestone_Extension {
                 //check to see if move candidates have predecessor tasks.
                 //checkPermissions() called at beginning of method
                 List<Milestone1_Milestone__c> candidateWithPredecessors = [Select Predecessor_Milestone__c From Milestone1_Milestone__c Where 
-                    Id in :topRecs AND Predecessor_Milestone__c != null];
+                    Id in :topRecs AND Predecessor_Milestone__c != null WITH USER_MODE];
                 if (candidateWithPredecessors.size() > 0) {
                     throw new Milestone1_Move_Exception(Milestone1_Move_Exception.ERROR_MILESTONE_HAS_PREDECESSOR);
                 }

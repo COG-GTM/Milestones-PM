@@ -44,6 +44,7 @@ global with sharing class Milestone1_Milestone_Batch_Delete implements Database.
     		ids.add( m.Id );
     	}
     	
+		// System mode intentional: batch cascade delete must see all milestones to prevent orphans
 		return Database.getQueryLocator( [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :ids] );
 	}
 
@@ -89,7 +90,7 @@ global with sharing class Milestone1_Milestone_Batch_Delete implements Database.
 		Test.StopTest();
 
 		// Test records were deleted
-		Integer milestonesCount = [SELECT count() FROM Milestone1_Milestone__c WHERE Project__c = :project.Id];
+		Integer milestonesCount = [SELECT count() FROM Milestone1_Milestone__c WHERE Project__c = :project.Id WITH USER_MODE];
 		 
 		System.assertEquals( 0, milestonesCount );
 	}
