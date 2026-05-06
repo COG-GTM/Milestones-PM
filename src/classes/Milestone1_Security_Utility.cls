@@ -10,16 +10,14 @@ public with sharing class Milestone1_Security_Utility {
     
     public static void fieldCreateable(DescribeFieldResult fdr) {
         if (!fdr.isCreateable()) {
-            Logger.warn(fdr.getName() + ' is not creatable');
-            Logger.saveLog();
+            try { Logger.warn(fdr.getName() + ' is not creatable'); Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not mask security error */ }
             throw new Milestone1_Exception('Insufficient Privileges');
         }
     }
     
     public static void fieldUpdateable(DescribeFieldResult fdr) {
         if (!fdr.isUpdateable()) {
-            Logger.warn(fdr.getName() + ' is not updateable');
-            Logger.saveLog();
+            try { Logger.warn(fdr.getName() + ' is not updateable'); Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not mask security error */ }
             throw new Milestone1_Exception('Insufficient Privileges');
         }
     }

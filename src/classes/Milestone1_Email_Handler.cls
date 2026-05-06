@@ -92,7 +92,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
             Milestone1_Email_Handler.updateMilestoneTask(matchingTasks.get(0),email);
         }
         result.success = true;
-        Logger.saveLog();
+        try { Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not affect email processing */ }
         return result;
     }
     
@@ -164,7 +164,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
                 }
             }
         }
-        Logger.saveLog();
+        try { Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not affect email processing */ }
         return result;
     }
     

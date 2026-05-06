@@ -86,7 +86,6 @@ global with sharing class Milestone1_Import_Project_Controller {
             }
 
             project = importUtility.importProject(xml);
-            Logger.saveLog();
             
         }
         catch( Exception e ) {
