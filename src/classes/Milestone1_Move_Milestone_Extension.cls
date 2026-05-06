@@ -173,15 +173,13 @@ public with sharing class Milestone1_Move_Milestone_Extension {
                     return stc.cancel();
                 }
             } else {
-                Logger.error('Insufficient permissions for milestone move');
-                Logger.saveLog();
+                try { Logger.error('Insufficient permissions for milestone move'); Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not mask error handling */ }
             	return ApexPages.currentPage();
             }
         }
         catch(Exception e)
         {
-            Logger.error('Exception during milestone move: ' + e.getMessage());
-            Logger.saveLog();
+            try { Logger.error('Exception during milestone move: ' + e.getMessage()); Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not mask error handling */ }
             ApexPages.Message errorMsg = new ApexPages.Message(ApexPages.Severity.FATAL, e.getMessage());
             ApexPages.addMessage(errorMsg);
             return ApexPages.currentPage();

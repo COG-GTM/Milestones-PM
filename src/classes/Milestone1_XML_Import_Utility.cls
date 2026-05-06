@@ -147,12 +147,12 @@ global with sharing class Milestone1_XML_Import_Utility {
                 reader.next();
             }
             insertSalesforceObjects();
-            Logger.saveLog();
         } catch(Exception ex) {
         	Database.rollback(sp);
         	throw ex;
         //throw new Milestone1_Import_Exception(Milestone1_Import_Exception.ERROR_INVALID_XML);
 		}
+        try { Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not affect import */ }
         return project;
     }
 

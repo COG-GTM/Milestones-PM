@@ -224,8 +224,7 @@ public with sharing class Milestone1_Move_Task_Extension {
         }
         }catch(Exception e)
         {
-            Logger.error('Exception during task move: ' + e.getMessage());
-            Logger.saveLog();
+            try { Logger.error('Exception during task move: ' + e.getMessage()); Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not mask error handling */ }
             ApexPages.Message errorMsg = new ApexPages.Message(ApexPages.Severity.FATAL, e.getMessage());
             ApexPages.addMessage(errorMsg);
             return ApexPages.currentPage();
