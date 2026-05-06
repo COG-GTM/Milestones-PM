@@ -38,7 +38,7 @@ global with sharing class Milestone1_Milestone_Batch_Update implements Database.
 	}
 
 	global Database.QueryLocator start(Database.BatchableContext BC){
-		return Database.getQueryLocator( [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :milestoneIds] );
+		return Database.getQueryLocator( [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :milestoneIds WITH USER_MODE] );
 	}
 
 	global void execute(Database.BatchableContext BC, List<sObject> milestoneScope){
@@ -83,7 +83,7 @@ global with sharing class Milestone1_Milestone_Batch_Update implements Database.
 		Test.StopTest();
 
 		// Test records were updated
-		List<Milestone1_Milestone__c> result = [SELECT Id, LastModifiedDate, CreatedDate FROM Milestone1_Milestone__c WHERE Project__c = :project.Id];
+		List<Milestone1_Milestone__c> result = [SELECT Id, LastModifiedDate, CreatedDate FROM Milestone1_Milestone__c WHERE Project__c = :project.Id WITH USER_MODE];
 		
 		idSet.clear();
 		for(Milestone1_Milestone__c m : result){

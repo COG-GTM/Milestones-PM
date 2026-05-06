@@ -76,12 +76,8 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         
         List<Milestone1_Task__c> matchingTasks = new List<Milestone1_Task__c>();
             
-        if (Schema.sObjectType.Milestone1_Task__c.isAccessible()) {
-        	matchingTasks = [Select Id from Milestone1_Task__c where Name =:taskName and
-        										  Project_Milestone__c =:milestone.Id limit 1];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        matchingTasks = [Select Id from Milestone1_Task__c where Name =:taskName and
+        										  Project_Milestone__c =:milestone.Id limit 1 WITH USER_MODE];
         
         if (matchingTasks == null || matchingTasks.size() == 0) {	
         	//As no task was found, assume that it is a forward
@@ -104,12 +100,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         system.debug('Email In Reply To: ' + email.inReplyTo);
         system.debug('Email Message Id: ' + email.messageId);
 
-        List<User> fromUsers = new List<User>();  
-        if (Schema.sObjectType.User.isAccessible()) {
-        	fromUsers = [Select Id from User where isActive = true and Email = :email.fromAddress];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        List<User> fromUsers = [Select Id from User where isActive = true and Email = :email.fromAddress WITH USER_MODE];
          
         String firstEmail;
         if(email.toAddresses != null && email.toAddresses.size() > 0)
@@ -118,12 +109,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
             system.debug('First Email == ' + firstEmail);
         }
         
-        List<User> toUsers = new List<User>(); 
-        if (Schema.sObjectType.User.isAccessible()) {
-        	toUsers = [Select Id from User where isActive = true and Email = :firstEmail];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        List<User> toUsers = [Select Id from User where isActive = true and Email = :firstEmail WITH USER_MODE];
          
         if (fromUsers.size() == 0) {
             result.message = ERROR_FROM_USER_NOT_FOUND;
@@ -322,12 +308,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
     		milestoneAliasName = Milestone1_Settings__c.getOrgDefaults().Default_Milestone_Alias__c;
     	}
         
-    	List<Milestone1_Milestone__c> milestones = new List<Milestone1_Milestone__c>();
-        if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible()) {
-        	milestones = [Select Id From Milestone1_Milestone__c where alias__c = :milestoneAliasName limit 1];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+    	List<Milestone1_Milestone__c> milestones = [Select Id From Milestone1_Milestone__c where alias__c = :milestoneAliasName limit 1 WITH USER_MODE];
         
         if(!milestones.isEmpty()){
         	milestone = milestones.get(0);

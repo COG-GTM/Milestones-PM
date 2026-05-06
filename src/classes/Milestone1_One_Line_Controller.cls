@@ -83,13 +83,11 @@ public with sharing class Milestone1_One_Line_Controller {
     { 
         List<Milestone1_Milestone__c> milestones = new List<Milestone1_Milestone__c>();
         
-        if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible()) {
-            milestones = [Select Id, Name, Alias__c from Milestone1_Milestone__c Where alias__c = :alias];
-            //Milestones - Alias field is Unique, so we should only have one return value.
-            if(milestones.size() > 0)
-            {
-                return milestones.get(0);
-            }
+        milestones = [Select Id, Name, Alias__c from Milestone1_Milestone__c Where alias__c = :alias WITH USER_MODE];
+        //Milestones - Alias field is Unique, so we should only have one return value.
+        if(milestones.size() > 0)
+        {
+            return milestones.get(0);
         }
         return null;
     }

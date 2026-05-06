@@ -68,29 +68,25 @@ public with sharing class Milestone1_Project_Trigger_Utility {
         
         List<Milestone1_Milestone__c> milestones = new List<Milestone1_Milestone__c>();
         
-        if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible()) {
-                                            milestones = [SELECT Id,
-                                                           Name,
-                                                           Project__c,
-                                                           Parent_Milestone__c,
-                                                           Complete__c,
-                                                           Deadline__c,
-                                                           Total_Actual_Hours__c,
-                                                           Total_Estimated_Hours__c,
-                                                           Total_Actual_Expense__c,
-                                                           Total_Estimated_Expense__c,
-                                                           Total_Hours_Budget__c,
-                                                           Total_Expense_Budget__c,
-                                                           Total_Complete_Tasks__c,
-                                                           Total_Open_Tasks__c,
-                                                           Total_Late_Tasks__c,
-                                                           Total_Blocked_Tasks__c
-                                                    FROM Milestone1_Milestone__c
-                                                    WHERE Project__c IN :projectsById.keySet()
-                                                   ];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        milestones = [SELECT Id,
+                               Name,
+                               Project__c,
+                               Parent_Milestone__c,
+                               Complete__c,
+                               Deadline__c,
+                               Total_Actual_Hours__c,
+                               Total_Estimated_Hours__c,
+                               Total_Actual_Expense__c,
+                               Total_Estimated_Expense__c,
+                               Total_Hours_Budget__c,
+                               Total_Expense_Budget__c,
+                               Total_Complete_Tasks__c,
+                               Total_Open_Tasks__c,
+                               Total_Late_Tasks__c,
+                               Total_Blocked_Tasks__c
+                        FROM Milestone1_Milestone__c
+                        WHERE Project__c IN :projectsById.keySet() WITH USER_MODE
+                       ];
 
         System.debug('*** milestones queried for projects: ' + milestones.size());
         
@@ -153,14 +149,10 @@ public with sharing class Milestone1_Project_Trigger_Utility {
         
         List<Milestone1_Milestone__c> milestones = new List<Milestone1_Milestone__c>();
         
-        if (Schema.sObjectType.Milestone1_Project__c.isAccessible()) {
-                                                milestones = [SELECT Id
-                                                    FROM Milestone1_Milestone__c
-                                                    WHERE Project__c IN :projectsById.keySet()
-                                                   ];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        milestones = [SELECT Id
+                        FROM Milestone1_Milestone__c
+                        WHERE Project__c IN :projectsById.keySet() WITH USER_MODE
+                       ];
         
         // Delete / Batch delete milestones
         if( milestones.size() > 0 ){
@@ -191,7 +183,7 @@ public with sharing class Milestone1_Project_Trigger_Utility {
         }
 
         
-    	Integer projectCount = [SELECT count() FROM Milestone1_Project__c WHERE Name IN: nameList limit 1];
+    	Integer projectCount = [SELECT count() FROM Milestone1_Project__c WHERE Name IN: nameList limit 1 WITH USER_MODE];
     	
     	//TODO Flesh out to be more specific -- right now this flags every project as problematic even if only one has a duplicate name
     	if( projectCount > 0 ) {
@@ -231,7 +223,7 @@ public with sharing class Milestone1_Project_Trigger_Utility {
 			handleProjectDeleteTrigger( new List<Milestone1_Project__c>{ project } );
 			Test.stopTest();
 			
-			system.assertEquals(0, [SELECT count() FROM Milestone1_Milestone__c WHERE Project__c = :project.Id]);
+			system.assertEquals(0, [SELECT count() FROM Milestone1_Milestone__c WHERE Project__c = :project.Id WITH USER_MODE]);
 		}
 		catch(Exception e){
 			system.assert( false, e.getMessage() );

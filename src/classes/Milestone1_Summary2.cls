@@ -78,7 +78,7 @@ public with sharing class Milestone1_Summary2 {
     public boolean isDeployed{
         get{
             Id myProfileId = UserInfo.getProfileId();
-            Profile myProfile = [Select Id, Name from Profile where Id=:myProfileId];
+            Profile myProfile = [Select Id, Name from Profile where Id=:myProfileId WITH USER_MODE];
             
             Boolean objectsDeployed = true;
             if (myProfile.Name != 'System Administrator')
@@ -118,9 +118,9 @@ public with sharing class Milestone1_Summary2 {
         
         if (isDeployed) //isDeployed method checks CRUD/FLS
         {
-            List<Milestone1_Project__c> recentProjects = [Select Id, Name from Milestone1_Project__c order by LastModifiedDate desc limit 5];
-            List<Milestone1_Milestone__c> recentMilestones = [Select Id, Name from Milestone1_Milestone__c order by LastModifiedDate desc limit 50];
-            List<Milestone1_Task__c> recentTasks = [Select Id, Name from Milestone1_Task__c order by LastModifiedDate desc limit 100];
+            List<Milestone1_Project__c> recentProjects = [Select Id, Name from Milestone1_Project__c order by LastModifiedDate desc limit 5 WITH USER_MODE];
+            List<Milestone1_Milestone__c> recentMilestones = [Select Id, Name from Milestone1_Milestone__c order by LastModifiedDate desc limit 50 WITH USER_MODE];
+            List<Milestone1_Task__c> recentTasks = [Select Id, Name from Milestone1_Task__c order by LastModifiedDate desc limit 100 WITH USER_MODE];
     
             this.recentItems = new List<Pair>();
             this.recentItems.addAll(createPairObjects(recentProjects, 'Project: '));
@@ -145,7 +145,7 @@ public with sharing class Milestone1_Summary2 {
         List<List<SObject>> searchList = [FIND :searchText in all fields returning 
         Milestone1_Project__c (Id, Name, Owner.Name, Status__c LIMIT 5), 
         Milestone1_Milestone__c (Id, Name, Project__r.Name LIMIT 10), 
-        Milestone1_Task__c (Id, Name, Project_Milestone__r.Name LIMIT 25) 
+        Milestone1_Task__c (Id, Name, Project_Milestone__r.Name LIMIT 25) WITH USER_MODE 
         ];
         this.projectResults = (List<Milestone1_Project__c>) searchList[0];
         this.milestoneResults = (List<Milestone1_Milestone__c>) searchList[1];
@@ -188,7 +188,7 @@ public with sharing class Milestone1_Summary2 {
             m.Total_Hours_Budget__c, m.Total_Hours_Budget_from_Milestones__c, m.Total_Hours_Estimate__c, m.Total_Hours_Incurred__c, 
             m.Status_BudgetMiletoneEstimate__c, m.Status_BudgetExpenseSummary__c, m.Name, m.Deadline__c, m.Kickoff__c, 
             m.Duration__c, m.GoogleGanntUrl__c
-            From Milestone1_Project__c m where m.status__c = 'Active']));
+            From Milestone1_Project__c m where m.status__c = 'Active' WITH USER_MODE]));
                 setCon.setPageSize(20);
             }
             return setCon;

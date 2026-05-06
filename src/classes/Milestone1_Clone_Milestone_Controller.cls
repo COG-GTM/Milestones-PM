@@ -39,74 +39,62 @@ public with sharing class Milestone1_Clone_Milestone_Controller {
     public Milestone1_Clone_Milestone_Controller(ApexPages.StandardController stc){
        // query main milestone record 
 
-        if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible()) {
-        	rec = [SELECT Id,
-                      Name,
-                      Project__c,
-                      Parent_Milestone__c,
-                      Complete__c,
-                      Deadline__c,
-                      Description__c,
-                      Expense_Budget__c,
-                      Hours_Budget__c,
-                      OwnerId,
-                      KickOff__c
-                      FROM Milestone1_Milestone__c
-                      WHERE Id = :stc.getId()
-                     ];
+        rec = [SELECT Id,
+                  Name,
+                  Project__c,
+                  Parent_Milestone__c,
+                  Complete__c,
+                  Deadline__c,
+                  Description__c,
+                  Expense_Budget__c,
+                  Hours_Budget__c,
+                  OwnerId,
+                  KickOff__c
+                  FROM Milestone1_Milestone__c
+                  WHERE Id = :stc.getId() WITH USER_MODE
+                 ];
         
-        	// query sub milestone records 
-        	milestones = [SELECT Id,
-                             Name,
-                             Parent_Milestone__c,
-                             Complete__c,
-                             Deadline__c,
-                             Description__c,
-                             Expense_Budget__c,
-                             Hours_Budget__c,
-                             OwnerId
-                      FROM Milestone1_Milestone__c
-                      WHERE Parent_Milestone__c = :rec.Id
-                     ];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        // query sub milestone records 
+        milestones = [SELECT Id,
+                         Name,
+                         Parent_Milestone__c,
+                         Complete__c,
+                         Deadline__c,
+                         Description__c,
+                         Expense_Budget__c,
+                         Hours_Budget__c,
+                         OwnerId
+                  FROM Milestone1_Milestone__c
+                  WHERE Parent_Milestone__c = :rec.Id WITH USER_MODE
+                 ];
             
         
-        if (Schema.sObjectType.Milestone1_Task__c.isAccessible()) {
-        	// query task records 
-       		tasks = [SELECT Id,
-                        Name,
-                        Project_Milestone__c,
-                        Assigned_To__c,
-                        Complete__c,
-                        Description__c,
-                        Start_Date__c,
-                        Due_Date__c,
-                        Priority__c,
-                        Task_Stage__c,
-                        Class__c,
-                        Blocked__c,
-                        Blocked_Reason__c,
-                        Last_Email_Received__c,
-                        Estimated_Hours__c,
-                        Estimated_Expense__c
-                 FROM Milestone1_Task__c
-                 WHERE Project_Milestone__c = :rec.Id
-                 OR Project_Milestone__r.Parent_Milestone__c = :rec.Id
-                 ];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		} 
+        // query task records 
+        tasks = [SELECT Id,
+                    Name,
+                    Project_Milestone__c,
+                    Assigned_To__c,
+                    Complete__c,
+                    Description__c,
+                    Start_Date__c,
+                    Due_Date__c,
+                    Priority__c,
+                    Task_Stage__c,
+                    Class__c,
+                    Blocked__c,
+                    Blocked_Reason__c,
+                    Last_Email_Received__c,
+                    Estimated_Hours__c,
+                    Estimated_Expense__c
+             FROM Milestone1_Task__c
+             WHERE Project_Milestone__c = :rec.Id
+             OR Project_Milestone__r.Parent_Milestone__c = :rec.Id WITH USER_MODE
+             ]; 
         
         dummyMS = new Milestone1_Milestone__c();
         dummyMS.Name = 'Copy of ' + rec.Name;
         
-        if (Schema.sObjectType.User.fields.Id.isAccessible()) {
-        	statusList = [SELECT IsActive from User where id = :rec.OwnerId];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        statusList = [SELECT IsActive from User where id = :rec.OwnerId WITH USER_MODE];
         
         if(statusList != null && statusList.size() > 0 )
             isMilestoneOwnerActive = statusList[0].IsActive; 

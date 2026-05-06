@@ -41,7 +41,7 @@ public with sharing class Milestone1_TaskTableController {
                 ORDER BY Project_Milestone__r.Project__r.Name,
                          Project_Milestone__r.Name,
                          Due_Date__c
-                LIMIT 50];
+                LIMIT 50 WITH USER_MODE];
         }
         
         return tasks;
@@ -82,7 +82,7 @@ public with sharing class Milestone1_TaskTableController {
                 AND Complete__c = false
                 AND Due_Date__c < :td
                 ORDER BY Due_Date__c
-                LIMIT 50];
+                LIMIT 50 WITH USER_MODE];
         }
         
         return tasks;
@@ -121,7 +121,7 @@ public with sharing class Milestone1_TaskTableController {
                 ORDER BY Project_Milestone__r.Project__r.Name,
                          Project_Milestone__r.Name,
                          Due_Date__c
-                LIMIT 50];
+                LIMIT 50 WITH USER_MODE];
         }
         
         return tasks;

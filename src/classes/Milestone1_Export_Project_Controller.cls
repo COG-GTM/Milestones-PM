@@ -41,16 +41,12 @@ global with sharing class Milestone1_Export_Project_Controller {
     {
     	errorMessage = null;
     	
-        if (Schema.sObjectType.Milestone1_Project__c.isAccessible()) {
-        	rec = [SELECT Id,
-                      Name, 
-                      Description__c 
-               FROM Milestone1_Project__c
-               WHERE Id = :stc.getId()
-            ];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}    
+        rec = [SELECT Id,
+                  Name, 
+                  Description__c 
+           FROM Milestone1_Project__c
+           WHERE Id = :stc.getId() WITH USER_MODE
+        ];    
     }
     
     global void createExportXML() {

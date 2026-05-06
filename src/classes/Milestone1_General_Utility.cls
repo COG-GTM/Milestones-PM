@@ -52,13 +52,8 @@ public with sharing class Milestone1_General_Utility
     * @createDate 	January 19, 2011
     */
     public static Boolean isSysAdmin() {
-        if (Schema.sObjectType.Profile.isAccessible()) {
-        	Profile pObj = [SELECT PermissionsModifyAllData, Id FROM Profile WHERE Id=:Userinfo.getProfileId() limit 1];
-        	return pObj.PermissionsModifyAllData;
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-            return false;
-		}    
+        Profile pObj = [SELECT PermissionsModifyAllData, Id FROM Profile WHERE Id=:Userinfo.getProfileId() limit 1 WITH USER_MODE];
+        return pObj.PermissionsModifyAllData;
     }
     
     public static Integer truncateStringAtSpace(String inputString)

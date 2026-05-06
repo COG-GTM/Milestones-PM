@@ -57,7 +57,7 @@ public with sharing class Milestone1_Security_Utility {
     }
     
     public static User getTestAdmin() {
-        Profile p = [SELECT Id FROM Profile WHERE Name='System Administrator' LIMIT 1];
+        Profile p = [SELECT Id FROM Profile WHERE Name='System Administrator' LIMIT 1 WITH USER_MODE];
         User u = new User(Alias = 'testadmi', Email='testadmin@mpm.slds', 
       		EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
       		LocaleSidKey='en_US', ProfileId = p.Id, 
@@ -66,7 +66,7 @@ public with sharing class Milestone1_Security_Utility {
     }
     
     public static User getTestReadUser() {
-        Profile p = [SELECT Id FROM Profile WHERE Name='Read Only' LIMIT 1];
+        Profile p = [SELECT Id FROM Profile WHERE Name='Read Only' LIMIT 1 WITH USER_MODE];
         User u = new User(Alias = 'testrea', Email='testread@mpm.slds', 
       		EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
       		LocaleSidKey='en_US', ProfileId = p.Id, 
@@ -75,7 +75,7 @@ public with sharing class Milestone1_Security_Utility {
     }
     
     public static User getTestChatterUser() {
-        Profile p = [SELECT Id FROM Profile WHERE Name='Chatter External User' LIMIT 1];
+        Profile p = [SELECT Id FROM Profile WHERE Name='Chatter External User' LIMIT 1 WITH USER_MODE];
         User u = new User(Alias = 'chatfr', Email='testchat@mpm.slds', 
       		EmailEncodingKey='UTF-8', LastName='Testing', LanguageLocaleKey='en_US', 
       		LocaleSidKey='en_US', ProfileId = p.Id, 

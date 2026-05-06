@@ -72,35 +72,31 @@ public with sharing class Milestone1_Move_Task_Extension {
         }
         
         //query task records
-        if (Schema.sObjectType.Milestone1_Task__c.isAccessible()) {
-            recs = [SELECT Id,
-                       Name,
-                       Project_Milestone__c,
-                       Assigned_To__c,
-                       Complete__c,
-                       Description__c,
-                       Due_Date__c,
-                       Start_Date__c,
-                       Estimated_Expense__c,
-                       Estimated_Hours__c,
-                       Priority__c,
-                       Class__c,
-                       Task_Stage__c,
-                       Blocked__c,
-                       Blocked_Reason__c,
-                       Last_Email_Received__c,
-                       Predecessor_Task__c,
-                       (SELECT Id FROM Project_Times__r),
-                       (SELECT Id FROM Project_Expenses__r),
-                       (SELECT Id FROM Notes),
-                       (SELECT Id FROM Attachments),
-                       (SELECT Id FROM NotesAndAttachments)
-                FROM Milestone1_Task__c
-                WHERE Id IN :recIds
-               ];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        recs = [SELECT Id,
+                   Name,
+                   Project_Milestone__c,
+                   Assigned_To__c,
+                   Complete__c,
+                   Description__c,
+                   Due_Date__c,
+                   Start_Date__c,
+                   Estimated_Expense__c,
+                   Estimated_Hours__c,
+                   Priority__c,
+                   Class__c,
+                   Task_Stage__c,
+                   Blocked__c,
+                   Blocked_Reason__c,
+                   Last_Email_Received__c,
+                   Predecessor_Task__c,
+                   (SELECT Id FROM Project_Times__r),
+                   (SELECT Id FROM Project_Expenses__r),
+                   (SELECT Id FROM Notes),
+                   (SELECT Id FROM Attachments),
+                   (SELECT Id FROM NotesAndAttachments)
+            FROM Milestone1_Task__c
+            WHERE Id IN :recIds WITH USER_MODE
+           ];
         
         hasChildren = false;
         hasPredecessorTasks = false;
@@ -139,11 +135,7 @@ public with sharing class Milestone1_Move_Task_Extension {
 		
 		//future parent.
         Milestone1_Milestone__c ms; 
-        if (Schema.sObjectType.Milestone1_Milestone__c.isAccessible()) {
-            ms = [SELECT Id, Complete__c FROM Milestone1_Milestone__c WHERE Id = :dummyTask.Project_Milestone__c];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        ms = [SELECT Id, Complete__c FROM Milestone1_Milestone__c WHERE Id = :dummyTask.Project_Milestone__c WITH USER_MODE];
 
 		//if we move tasks with successors, and we move ALL of those tasks, we're fine.
 		//however, if we have successors, and we don't move all of them, data gets terrible.      	
@@ -159,7 +151,7 @@ public with sharing class Milestone1_Move_Task_Extension {
             if user selected t1, t2 and t3, that should succeed. since no tasks are listed as predecessors for these
         */
         List<Milestone1_Task__c> successors = [Select Id From Milestone1_Task__c WHERE 
-            Predecessor_Task__c in :recIds AND Id not in :recIds];
+            Predecessor_Task__c in :recIds AND Id not in :recIds WITH USER_MODE];
         
        if (successors.size() > 0) {
            throw new Milestone1_Move_Exception('Selected tasks have successors which are not selected. Clear those and try again OR select only tasks which have no successors.');
@@ -187,17 +179,13 @@ public with sharing class Milestone1_Move_Task_Extension {
 		}
 
         List<Milestone1_Log__c> logs = new List<Milestone1_Log__c>();
-        if (Schema.sObjectType.Milestone1_Log__c.isAccessible()) {
-            logs = [SELECT Id, Project_Task__c FROM Milestone1_Log__c WHERE Project_Task__c IN :newTasksMap.keySet()];
+        logs = [SELECT Id, Project_Task__c FROM Milestone1_Log__c WHERE Project_Task__c IN :newTasksMap.keySet() WITH USER_MODE];
 
-            if(logs.size() > 0){
-                for(Milestone1_Log__c log : logs){
-                    log.Project_Task__c = newTasksMap.get(log.Project_Task__c).Id;
-                }
+        if(logs.size() > 0){
+            for(Milestone1_Log__c log : logs){
+                log.Project_Task__c = newTasksMap.get(log.Project_Task__c).Id;
             }
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        }
         
         if (Schema.sObjectType.Milestone1_Log__c.isUpdateable()) {
         	update logs;

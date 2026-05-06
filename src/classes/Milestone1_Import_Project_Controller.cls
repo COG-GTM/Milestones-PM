@@ -44,11 +44,7 @@ global with sharing class Milestone1_Import_Project_Controller {
     {
         docOptions = new List<SelectOption>();
         
-        if (Schema.sObjectType.Document.isAccessible()) {
-        	docs = [Select Id, Name from Document where Name like: 'EXPORT %' ];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}
+        docs = [Select Id, Name from Document where Name like: 'EXPORT %' WITH USER_MODE];
         
         if (Schema.sObjectType.Document.isCreateable()) {
         	for (Document doc : docs) {
@@ -105,11 +101,7 @@ global with sharing class Milestone1_Import_Project_Controller {
         
         List<Document> docs = new List<Document>();
         
-        if (Schema.sObjectType.Document.isCreateable()) {
-        	docs = [Select Id, Body, ContentType From Document Where Id = :docId limit 1];
-        } else {
-			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
-		}    
+        docs = [Select Id, Body, ContentType From Document Where Id = :docId limit 1 WITH USER_MODE];    
             
         if(docs.size() != 0)
         {
