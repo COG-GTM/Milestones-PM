@@ -193,7 +193,6 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
 		}
         
         Logger.info('Created new milestone task with ID: ' + newTask.Id);
-        Logger.saveLog();
         return newTask;
     }
     
@@ -226,7 +225,6 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
 		}
         
         Logger.info('Created note with ID: ' + newNote.Id);
-        Logger.saveLog();
         return newNote;
     }
     
@@ -299,7 +297,6 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
             }
         }
         Logger.info('Inserting ' + insertAttachments.size() + ' attachment(s)');
-        Logger.saveLog();
         if ((insertAttachments.size() > 0) && (Schema.sObjectType.Attachment.isCreateable())) {
             insert insertAttachments;
         } else {

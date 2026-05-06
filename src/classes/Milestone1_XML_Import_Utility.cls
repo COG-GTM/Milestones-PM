@@ -147,6 +147,7 @@ global with sharing class Milestone1_XML_Import_Utility {
                 reader.next();
             }
             insertSalesforceObjects();
+            Logger.saveLog();
         } catch(Exception ex) {
         	Database.rollback(sp);
         	throw ex;
@@ -678,7 +679,6 @@ global with sharing class Milestone1_XML_Import_Utility {
              subTasks.add(currentTask);
         }
         tasks.add(currentTask);
-        Logger.saveLog();
     }
     
     global void parseTime(XMLStreamreader reader, Milestone1_Task__c currentTask){
