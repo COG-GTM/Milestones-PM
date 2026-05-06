@@ -44,7 +44,8 @@ global with sharing class Milestone1_Milestone_Batch_Delete implements Database.
     		ids.add( m.Id );
     	}
     	
-		return Database.getQueryLocator( [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :ids WITH USER_MODE] );
+		// System mode intentional: batch cascade delete must see all milestones to prevent orphans
+		return Database.getQueryLocator( [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :ids] );
 	}
 
 	global void execute(Database.BatchableContext BC, List<sObject> milestoneScope){
