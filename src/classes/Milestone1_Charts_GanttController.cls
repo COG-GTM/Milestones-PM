@@ -122,6 +122,8 @@ public with sharing class Milestone1_Charts_GanttController {
             + '\' ORDER BY Name';
         
     	sobjectList = Database.query(query);
+    	SObjectAccessDecision decision = Security.stripInaccessible(AccessType.READABLE, sobjectList);
+    	sobjectList = decision.getRecords();
     }
     
     /**

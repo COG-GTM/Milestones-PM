@@ -181,7 +181,14 @@ public with sharing class Milestone1_Move_Task_Extension {
         }
         
         if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
-        	insert newTasksMap.values();
+            SObjectAccessDecision taskDecision = Security.stripInaccessible(AccessType.CREATABLE, newTasksMap.values());
+        	insert taskDecision.getRecords();
+            List<SObject> insertedTasks = taskDecision.getRecords();
+            Integer tIdx = 0;
+            for(String key : newTasksMap.keySet()) {
+                newTasksMap.get(key).Id = insertedTasks[tIdx].Id;
+                tIdx++;
+            }
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -200,7 +207,8 @@ public with sharing class Milestone1_Move_Task_Extension {
 		}
         
         if (Schema.sObjectType.Milestone1_Log__c.isUpdateable()) {
-        	update logs;
+            SObjectAccessDecision logDecision = Security.stripInaccessible(AccessType.UPDATABLE, logs);
+        	update logDecision.getRecords();
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}

@@ -118,9 +118,9 @@ public with sharing class Milestone1_Summary2 {
         
         if (isDeployed) //isDeployed method checks CRUD/FLS
         {
-            List<Milestone1_Project__c> recentProjects = [Select Id, Name from Milestone1_Project__c order by LastModifiedDate desc limit 5];
-            List<Milestone1_Milestone__c> recentMilestones = [Select Id, Name from Milestone1_Milestone__c order by LastModifiedDate desc limit 50];
-            List<Milestone1_Task__c> recentTasks = [Select Id, Name from Milestone1_Task__c order by LastModifiedDate desc limit 100];
+            List<Milestone1_Project__c> recentProjects = (List<Milestone1_Project__c>) Security.stripInaccessible(AccessType.READABLE, [Select Id, Name from Milestone1_Project__c order by LastModifiedDate desc limit 5]).getRecords();
+            List<Milestone1_Milestone__c> recentMilestones = (List<Milestone1_Milestone__c>) Security.stripInaccessible(AccessType.READABLE, [Select Id, Name from Milestone1_Milestone__c order by LastModifiedDate desc limit 50]).getRecords();
+            List<Milestone1_Task__c> recentTasks = (List<Milestone1_Task__c>) Security.stripInaccessible(AccessType.READABLE, [Select Id, Name from Milestone1_Task__c order by LastModifiedDate desc limit 100]).getRecords();
     
             this.recentItems = new List<Pair>();
             this.recentItems.addAll(createPairObjects(recentProjects, 'Project: '));
@@ -147,9 +147,9 @@ public with sharing class Milestone1_Summary2 {
         Milestone1_Milestone__c (Id, Name, Project__r.Name LIMIT 10), 
         Milestone1_Task__c (Id, Name, Project_Milestone__r.Name LIMIT 25) 
         ];
-        this.projectResults = (List<Milestone1_Project__c>) searchList[0];
-        this.milestoneResults = (List<Milestone1_Milestone__c>) searchList[1];
-        this.taskResults = (List<Milestone1_Task__c>) searchList[2];
+        this.projectResults = (List<Milestone1_Project__c>) Security.stripInaccessible(AccessType.READABLE, (List<Milestone1_Project__c>) searchList[0]).getRecords();
+        this.milestoneResults = (List<Milestone1_Milestone__c>) Security.stripInaccessible(AccessType.READABLE, (List<Milestone1_Milestone__c>) searchList[1]).getRecords();
+        this.taskResults = (List<Milestone1_Task__c>) Security.stripInaccessible(AccessType.READABLE, (List<Milestone1_Task__c>) searchList[2]).getRecords();
         
         if (this.projectResults.isEmpty() && this.milestoneResults.isEmpty() && this.taskResults.isEmpty()) {
             this.displaySearchError = true;

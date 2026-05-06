@@ -48,6 +48,8 @@ global with sharing class Milestone1_Export_Project_Controller {
                FROM Milestone1_Project__c
                WHERE Id = :stc.getId()
             ];
+            SObjectAccessDecision readDecision = Security.stripInaccessible(AccessType.READABLE, new List<Milestone1_Project__c>{rec});
+            rec = (Milestone1_Project__c) readDecision.getRecords()[0];
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}    
@@ -110,7 +112,9 @@ global with sharing class Milestone1_Export_Project_Controller {
         d.FolderId = UserInfo.getUserId();
         
         if (Schema.sObjectType.Document.isCreateable()) {
-        	insert d;
+            SObjectAccessDecision docDecision = Security.stripInaccessible(AccessType.CREATABLE, new List<Document>{d});
+        	insert docDecision.getRecords();
+            d.Id = docDecision.getRecords()[0].Id;
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}

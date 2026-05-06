@@ -42,6 +42,8 @@ public with sharing class Milestone1_TaskTableController {
                          Project_Milestone__r.Name,
                          Due_Date__c
                 LIMIT 50];
+            SObjectAccessDecision decision = Security.stripInaccessible(AccessType.READABLE, tasks);
+            tasks = (List<Milestone1_Task__c>) decision.getRecords();
         }
         
         return tasks;
@@ -83,6 +85,8 @@ public with sharing class Milestone1_TaskTableController {
                 AND Due_Date__c < :td
                 ORDER BY Due_Date__c
                 LIMIT 50];
+            SObjectAccessDecision decision = Security.stripInaccessible(AccessType.READABLE, tasks);
+            tasks = (List<Milestone1_Task__c>) decision.getRecords();
         }
         
         return tasks;
@@ -122,6 +126,8 @@ public with sharing class Milestone1_TaskTableController {
                          Project_Milestone__r.Name,
                          Due_Date__c
                 LIMIT 50];
+            SObjectAccessDecision decision = Security.stripInaccessible(AccessType.READABLE, tasks);
+            tasks = (List<Milestone1_Task__c>) decision.getRecords();
         }
         
         return tasks;
