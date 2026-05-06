@@ -41,7 +41,7 @@ public with sharing class Milestone1_Email_Utility
         email.setSubject(EMAIL_SUBJECT);
         email.setSenderDisplayName(Milestone1_Email_Utility.EMAIL_SENDER_NAME);
         email.setHtmlBody(buildHTMLBody(nags));
-        Logger.saveLog();
+        try { Logger.saveLog(); } catch(Exception logEx) { /* logging failure must not affect email building */ }
         return email;
     }
     
