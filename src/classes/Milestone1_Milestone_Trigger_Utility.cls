@@ -518,7 +518,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	*	check the permission to Read in the share objects for the references objects.
 	*/
 	private static Boolean checkAccessRightReferences(List<Sobject> sobjectList, String reference,String sharedObjectName,String userId,String errorMessage){
-		String query = 'SELECT UserOrGroupId,AccessLevel,ParentId FROM $1 WHERE UserOrGroupId = \'$3\' WITH USER_MODE ';
+		String query = 'SELECT UserOrGroupId,AccessLevel,ParentId FROM $1 WHERE UserOrGroupId = \'$3\' ';
 		Sobjecttype milestoneShareSObjectType = Schema.getGlobalDescribe().get(sharedObjectName);
 		Boolean hasPermission = true;
 		
@@ -534,7 +534,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 			String querySharedObjects = query.replace('$1',sharedObjectName);
 			querySharedObjects = querySharedObjects.replace('$3',userId);
 			Sobject sharedObjectFound;
-			// TODO: Migrate to Database.queryWithBinds with AccessLevel.USER_MODE
+			// System mode intentional: __Share objects require system-level access for non-admin users
 			List<Sobject> sharedObjects = Database.query(querySharedObjects);
 			for(Sobject myObject : sobjectList){
 				sharedObjectFound = null;
