@@ -80,7 +80,8 @@ public with sharing class Milestone1_GettingStartedController {
                 Milestone1_Settings__c.SObjectType.getDescribe());
             
             if (Schema.sObjectType.Milestone1_Settings__c.isCreateable()) {
-            	insert settings;
+                SObjectAccessDecision settingsDecision = Security.stripInaccessible(AccessType.CREATABLE, new List<Milestone1_Settings__c>{settings});
+            	insert settingsDecision.getRecords();
             } else {
 				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 			}
@@ -151,7 +152,8 @@ public with sharing class Milestone1_GettingStartedController {
                 }
                 
                 if (Schema.sObjectType.Milestone1_Project__c.isUpdateable()) {
-                	update project;
+                    SObjectAccessDecision projDecision = Security.stripInaccessible(AccessType.UPDATABLE, new List<Milestone1_Project__c>{project});
+                	update projDecision.getRecords();
                 } else {
 					ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 				}
@@ -242,13 +244,15 @@ public with sharing class Milestone1_GettingStartedController {
                 }
                 
                 if (Schema.sObjectType.Milestone1_Task__c.isUpdateable()) {
-                	update tasks;
+                    SObjectAccessDecision taskDecision = Security.stripInaccessible(AccessType.UPDATABLE, tasks);
+                	update taskDecision.getRecords();
                 } else {
 					ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 				}
                 
                 if (Schema.sObjectType.Milestone1_Milestone__c.isUpdateable()) {
-                	update milestones;
+                    SObjectAccessDecision msDecision = Security.stripInaccessible(AccessType.UPDATABLE, milestones);
+                	update msDecision.getRecords();
                 } else {
 					ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 				}

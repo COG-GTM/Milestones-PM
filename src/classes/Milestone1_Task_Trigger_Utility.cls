@@ -147,7 +147,8 @@ public class Milestone1_Task_Trigger_Utility {
             }
         }
         if (Schema.sObjectType.Milestone1_Task__c.isUpdateable()) {
-            update successorsToUpdate;
+            SObjectAccessDecision decision = Security.stripInaccessible(AccessType.UPDATABLE, successorsToUpdate);
+            update decision.getRecords();
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}

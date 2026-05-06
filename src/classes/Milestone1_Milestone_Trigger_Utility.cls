@@ -116,7 +116,8 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
             }
         }
 		if (Schema.sObjectType.Milestone1_Milestone__c.isUpdateable()) {
-        	update successorsToUpdate;
+            SObjectAccessDecision decision = Security.stripInaccessible(AccessType.UPDATABLE, successorsToUpdate);
+        	update decision.getRecords();
 		} else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -151,7 +152,8 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
             }
         }
         alreadyMadeParent = true;
-        update childrenToUpdate;
+        SObjectAccessDecision childDecision = Security.stripInaccessible(AccessType.UPDATABLE, childrenToUpdate);
+        update childDecision.getRecords();
     }
     
     public static void checkTaskDependencies(Map<Id, Milestone1_Milestone__c> oldMap, Map<Id, Milestone1_Milestone__c> newMap) {
@@ -190,7 +192,8 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
         }
         
         if (Schema.sObjectType.Milestone1_Task__c.isUpdateable()) {
-        	update tasksToUpdate;
+            SObjectAccessDecision taskDecision = Security.stripInaccessible(AccessType.UPDATABLE, tasksToUpdate);
+        	update taskDecision.getRecords();
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -444,7 +447,9 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     		batchUpdateMilestones(idSet);
     	}
     	else{
-       		update [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :idSet];
+            List<Milestone1_Milestone__c> msToUpdate = [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :idSet];
+            SObjectAccessDecision msDecision = Security.stripInaccessible(AccessType.UPDATABLE, msToUpdate);
+       		update msDecision.getRecords();
     	}
     }
     
@@ -465,7 +470,9 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     		batchUpdateProjects(idSet);
     	}
     	else{
-	        update [SELECT Id FROM Milestone1_Project__c WHERE Id IN :idSet];
+            List<Milestone1_Project__c> projToUpdate = [SELECT Id FROM Milestone1_Project__c WHERE Id IN :idSet];
+            SObjectAccessDecision projDecision = Security.stripInaccessible(AccessType.UPDATABLE, projToUpdate);
+	        update projDecision.getRecords();
     	}
     }
 

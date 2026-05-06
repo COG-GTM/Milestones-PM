@@ -181,7 +181,9 @@ global with sharing class Milestone1_XML_Import_Utility {
         }
         
         if (Schema.sObjectType.Milestone1_Project__c.isCreateable()) {
-        	insert project;
+            SObjectAccessDecision projDecision = Security.stripInaccessible(AccessType.CREATABLE, new List<Milestone1_Project__c>{project});
+        	insert projDecision.getRecords();
+            project.Id = projDecision.getRecords()[0].Id;
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -202,7 +204,12 @@ global with sharing class Milestone1_XML_Import_Utility {
 	        }
         
         if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-        	insert milestones;
+            SObjectAccessDecision msDecision = Security.stripInaccessible(AccessType.CREATABLE, milestones);
+        	insert msDecision.getRecords();
+            List<SObject> insertedMs = msDecision.getRecords();
+            for(Integer i = 0; i < milestones.size(); i++) {
+                milestones[i].Id = insertedMs[i].Id;
+            }
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -227,7 +234,12 @@ global with sharing class Milestone1_XML_Import_Utility {
 	    }
         
         if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-	    	insert subMilestones;
+            SObjectAccessDecision subMsDecision = Security.stripInaccessible(AccessType.CREATABLE, subMilestones);
+	    	insert subMsDecision.getRecords();
+            List<SObject> insertedSubMs = subMsDecision.getRecords();
+            for(Integer i = 0; i < subMilestones.size(); i++) {
+                subMilestones[i].Id = insertedSubMs[i].Id;
+            }
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -262,7 +274,12 @@ global with sharing class Milestone1_XML_Import_Utility {
         }
 
         if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
-        	insert tasks;
+            SObjectAccessDecision taskDecision = Security.stripInaccessible(AccessType.CREATABLE, tasks);
+        	insert taskDecision.getRecords();
+            List<SObject> insertedTasks = taskDecision.getRecords();
+            for(Integer i = 0; i < tasks.size(); i++) {
+                tasks[i].Id = insertedTasks[i].Id;
+            }
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -279,7 +296,8 @@ global with sharing class Milestone1_XML_Import_Utility {
         	matchTimetoTask(tasks,currentTime);
         }
         if (Schema.sObjectType.Milestone1_Time__c.isCreateable()) {
-        	insert times;
+            SObjectAccessDecision timeDecision = Security.stripInaccessible(AccessType.CREATABLE, times);
+        	insert timeDecision.getRecords();
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}

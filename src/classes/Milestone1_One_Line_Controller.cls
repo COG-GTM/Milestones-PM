@@ -58,7 +58,9 @@ public with sharing class Milestone1_One_Line_Controller {
                     }
                     task.Description__c = descriptionString;
                     task.Project_Milestone__c = milestone.Id;
-                    insert task;
+                    SObjectAccessDecision decision = Security.stripInaccessible(AccessType.CREATABLE, new List<Milestone1_Task__c>{task});
+                    insert decision.getRecords();
+                    task.Id = decision.getRecords()[0].Id;
                     line = '';
                 }catch(Exception e)
                 {

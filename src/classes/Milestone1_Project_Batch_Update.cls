@@ -41,7 +41,8 @@ global with sharing class Milestone1_Project_Batch_Update implements Database.Ba
 	}
 
 	global void execute(Database.BatchableContext BC, List<sObject> projectScope){
-		update projectScope;
+		SObjectAccessDecision decision = Security.stripInaccessible(AccessType.UPDATABLE, projectScope);
+		update decision.getRecords();
 	}
 
 	global void finish(Database.BatchableContext BC){}

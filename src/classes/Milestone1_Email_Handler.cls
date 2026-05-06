@@ -190,7 +190,9 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         newTask.Last_Email_Received__c = Datetime.now();
         
         if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
-        	insert newTask;
+            SObjectAccessDecision taskDecision = Security.stripInaccessible(AccessType.CREATABLE, new List<Milestone1_Task__c>{newTask});
+        	insert taskDecision.getRecords();
+            newTask.Id = taskDecision.getRecords()[0].Id;
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -206,7 +208,8 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         msTask.Last_Email_Received__c = Datetime.now();
         
         if (Schema.sObjectType.Milestone1_Task__c.isUpdateable()) {
-        	update msTask;
+            SObjectAccessDecision taskUpdateDecision = Security.stripInaccessible(AccessType.UPDATABLE, new List<Milestone1_Task__c>{msTask});
+        	update taskUpdateDecision.getRecords();
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -223,7 +226,9 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         newNote.body = email.plainTextBody;
         
         if (Schema.sObjectType.Note.isCreateable()) {
-        	insert newNote;
+            SObjectAccessDecision noteDecision = Security.stripInaccessible(AccessType.CREATABLE, new List<Note>{newNote});
+        	insert noteDecision.getRecords();
+            newNote.Id = noteDecision.getRecords()[0].Id;
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
@@ -307,7 +312,8 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         }
         system.debug('Insert the Attachments. Number is ' + insertAttachments.size());
         if ((insertAttachments.size() > 0) && (Schema.sObjectType.Attachment.isCreateable())) {
-            insert insertAttachments;
+            SObjectAccessDecision attDecision = Security.stripInaccessible(AccessType.CREATABLE, insertAttachments);
+            insert attDecision.getRecords();
         } else {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}

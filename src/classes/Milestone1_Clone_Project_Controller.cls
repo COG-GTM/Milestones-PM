@@ -134,7 +134,9 @@ public with sharing class Milestone1_Clone_Project_Controller {
             Milestone1_Project__c newProj = Milestone1_Clone_Utility.cloneProject(rec);
             
             if (Schema.sObjectType.Milestone1_Project__c.isCreateable()) {
-            	insert newProj;
+                SObjectAccessDecision projDecision = Security.stripInaccessible(AccessType.CREATABLE, new List<Milestone1_Project__c>{newProj});
+            	insert projDecision.getRecords();
+                newProj.Id = projDecision.getRecords()[0].Id;
             } else {
 				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 			}
@@ -157,7 +159,14 @@ public with sharing class Milestone1_Clone_Project_Controller {
             }
             
             if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-            	insert newTopMilestoneMap.values();
+                SObjectAccessDecision topMsDecision = Security.stripInaccessible(AccessType.CREATABLE, newTopMilestoneMap.values());
+            	insert topMsDecision.getRecords();
+                List<SObject> insertedTopMs = topMsDecision.getRecords();
+                Integer idx = 0;
+                for(String key : newTopMilestoneMap.keySet()) {
+                    newTopMilestoneMap.get(key).Id = insertedTopMs[idx].Id;
+                    idx++;
+                }
             } else {
 				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 			}
@@ -174,7 +183,14 @@ public with sharing class Milestone1_Clone_Project_Controller {
             }
             
             if (Schema.sObjectType.Milestone1_Milestone__c.isCreateable()) {
-            	insert newBottomMilestoneMap.values();
+                SObjectAccessDecision bottomMsDecision = Security.stripInaccessible(AccessType.CREATABLE, newBottomMilestoneMap.values());
+            	insert bottomMsDecision.getRecords();
+                List<SObject> insertedBottomMs = bottomMsDecision.getRecords();
+                Integer bIdx = 0;
+                for(String key : newBottomMilestoneMap.keySet()) {
+                    newBottomMilestoneMap.get(key).Id = insertedBottomMs[bIdx].Id;
+                    bIdx++;
+                }
             } else {
 				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 			}
@@ -192,7 +208,8 @@ public with sharing class Milestone1_Clone_Project_Controller {
                 newTask.Project_Milestone__c = allNewMilestoneMap.get(newTask.Project_Milestone__c).Id;
             }
             if (Schema.sObjectType.Milestone1_Task__c.isCreateable()) {
-            	insert newTasks;
+                SObjectAccessDecision taskDecision = Security.stripInaccessible(AccessType.CREATABLE, newTasks);
+            	insert taskDecision.getRecords();
             } else {
 				ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 			}
