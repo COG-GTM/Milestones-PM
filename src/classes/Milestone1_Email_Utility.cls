@@ -34,13 +34,14 @@ public with sharing class Milestone1_Email_Utility
 
     public static Messaging.SingleEmailMessage buildEmail(List<Milestone1_Nag__c> nags, User recipient)
     {
-        System.debug('Processing number of nags == ' + nags.size());
+        Logger.info('Processing ' + nags.size() + ' nag notification(s)');
         Messaging.SingleEmailMessage email = new Messaging.SingleEmailMessage();
         String[] toAddresses = new String[]{recipient.Email};
         email.setToAddresses(toAddresses);
         email.setSubject(EMAIL_SUBJECT);
         email.setSenderDisplayName(Milestone1_Email_Utility.EMAIL_SENDER_NAME);
         email.setHtmlBody(buildHTMLBody(nags));
+        Logger.saveLog();
         return email;
     }
     
@@ -62,7 +63,6 @@ public with sharing class Milestone1_Email_Utility
              }
              returnBody = returnBody + '<br/> <a href=https://www.salesforce.com/' + item + '>' + nag.Parent_Name__c + '</a> - ' + nag.Nag_Status__c;
         }
-        system.debug(returnBody);
         return returnBody;
     }
 }

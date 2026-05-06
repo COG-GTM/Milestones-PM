@@ -267,7 +267,7 @@ global with sharing class Milestone1_XML_Import_Utility {
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
 
-        system.debug('tasks'+tasks);
+
         /*
         for(Milestone1_Task__c currentTask : tasks){
         	matchTaskToTask(currentTask);
@@ -594,7 +594,7 @@ global with sharing class Milestone1_XML_Import_Utility {
             		Milestone1_Task__c.Name.getDescribe());
                 currentTask.Name = getDecodedString(reader);
                 if(currentTask.Name == null){
-                    system.debug('Name is NULL ');
+                    Logger.warn('Task name is null during XML import, defaulting to "Name Blank"');
                     Milestone1_Security_Utility.fieldCreateable(
             			Milestone1_Task__c.Name.getDescribe());
                     currentTask.Name = 'Name Blank';
@@ -678,6 +678,7 @@ global with sharing class Milestone1_XML_Import_Utility {
              subTasks.add(currentTask);
         }
         tasks.add(currentTask);
+        Logger.saveLog();
     }
     
     global void parseTime(XMLStreamreader reader, Milestone1_Task__c currentTask){

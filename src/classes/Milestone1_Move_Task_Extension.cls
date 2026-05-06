@@ -224,7 +224,8 @@ public with sharing class Milestone1_Move_Task_Extension {
         }
         }catch(Exception e)
         {
-            system.debug('Exception thrown!');
+            Logger.error('Exception during task move: ' + e.getMessage());
+            Logger.saveLog();
             ApexPages.Message errorMsg = new ApexPages.Message(ApexPages.Severity.FATAL, e.getMessage());
             ApexPages.addMessage(errorMsg);
             return ApexPages.currentPage();

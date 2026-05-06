@@ -267,8 +267,6 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	        //map children by their parent milestone ID
 	        Map<Id, List<Milestone1_Milestone__c>> extraChildrenMap = new Map<Id, List<Milestone1_Milestone__c>>();
 	        for(Milestone1_Milestone__c extraChild : extraChildren){
-	            System.debug('*** extra child found: ' + extraChild.Name + ', parent is ' + extraChild.Parent_Milestone__r.Name);
-	            System.debug('*** child is: ' + extraChild);
 	            if(extraChildrenMap.get(extraChild.Parent_Milestone__c) == null){
 	                extraChildrenMap.put(extraChild.Parent_Milestone__c, new List<Milestone1_Milestone__c>());
 	            }
@@ -405,7 +403,6 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
                     //record has parent, but parent is not in our recs list
                     //mark parent milestone to be updated
                     milestoneUpdateSet.add(rec.Parent_Milestone__c);
-                    System.debug('*** added parent ' + rec.Parent_Milestone__c + ' to list of milestones to update (child: ' + rec.Name + ')');
                 }
             } else {
                 //record does not have parent milestone

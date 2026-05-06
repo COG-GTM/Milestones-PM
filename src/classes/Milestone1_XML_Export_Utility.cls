@@ -114,7 +114,6 @@ global with sharing class Milestone1_XML_Export_Utility {
         out.writeEndDocument();
         String ret = out.getXmlString();
         out.close();
-        system.debug('Exit <buildXmlString(Milestone1_Project__c target)> in class <Milestone1_XML_Export_Utility> return string == \n ' + ret);
         return ret;
     }
 

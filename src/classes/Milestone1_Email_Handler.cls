@@ -64,8 +64,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
     
     public static Messaging.InboundEmailResult processReplyEmail(Messaging.InboundEmail email)
     {
-        system.debug('Process a Reply Email. Reply ID ' + email.inReplyTo);
-        system.debug('plainTextBodyIsTruncated == ' + email.plainTextBodyIsTruncated);
+        Logger.info('Processing reply email with Reply ID: ' + email.inReplyTo);
         Messaging.InboundEmailResult result = new Messaging.InboundEmailresult();
         
         //processing the subject
@@ -93,16 +92,15 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
             Milestone1_Email_Handler.updateMilestoneTask(matchingTasks.get(0),email);
         }
         result.success = true;
+        Logger.saveLog();
         return result;
     }
     
     public static Messaging.InboundEmailResult processNewEmail(Messaging.InboundEmail email)
     {
-        system.debug('Process a new Email');
+        Logger.info('Processing new inbound email');
         Messaging.InboundEmailResult result = new Messaging.InboundEmailresult();
         Milestone1_Milestone__c milestone;
-        system.debug('Email In Reply To: ' + email.inReplyTo);
-        system.debug('Email Message Id: ' + email.messageId);
 
         List<User> fromUsers = new List<User>();  
         if (Schema.sObjectType.User.isAccessible()) {
@@ -115,7 +113,6 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         if(email.toAddresses != null && email.toAddresses.size() > 0)
         {
             firstEmail = Milestone1_Email_Handler.parseAddress(email.toAddresses.get(0));
-            system.debug('First Email == ' + firstEmail);
         }
         
         List<User> toUsers = new List<User>(); 
@@ -144,7 +141,6 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
                 result.message = ERROR_SUBJECT_MISSING_TASK;
                 result.success = false;
             } else {	
-                System.debug('Find the Milestone for Alias: ' + milestoneAliasName); 
                 if(milestoneAliasName == ''){
 					milestoneAliasName = Milestone1_Settings__c.getOrgDefaults().Default_Milestone_Alias__c;
 					if(milestoneAliasName == ''){
@@ -168,6 +164,7 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
                 }
             }
         }
+        Logger.saveLog();
         return result;
     }
     
@@ -195,7 +192,8 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
         
-        system.debug('New Task ID == ' + newTask.Id);
+        Logger.info('Created new milestone task with ID: ' + newTask.Id);
+        Logger.saveLog();
         return newTask;
     }
     
@@ -211,7 +209,6 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
         
-        system.debug('The task ReplyTo chain: ' + msTask.Email_GUID__c);
         return msTask;
     }
     
@@ -228,7 +225,8 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
 			ApexPages.addMessage(new ApexPages.Message(ApexPages.Severity.ERROR,'Error: User is unauthorized to act on this object/field.'));
 		}
         
-        system.debug('New Note ID == ' + newNote.Id);
+        Logger.info('Created note with ID: ' + newNote.Id);
+        Logger.saveLog();
         return newNote;
     }
     
@@ -244,13 +242,11 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
                 buildName = buildName + addressTokens[x] + ' ';
             }
             buildName = buildName.subString(0,buildName.length() - 1);
-            System.debug('Build Name = ' + buildName);
         }
         
         returnEmail = addressTokens[addressTokens.size() -1];
         returnEmail = returnEmail.replace('<','');
         returnEmail = returnEmail.replace('>','');
-        system.debug('To address email == ' + returnEmail);
         return returnEmail;
     }
     
@@ -277,13 +273,11 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
     //Insert the Email's attached files as SFDC Attachment Object on the Milestone Task Object.skh Binary and Text Attachments.
     public static void insertAttachments(Milestone1_Task__c newTask, Messaging.InboundEmail email)
     {
-        system.debug('Insert Attachments....');
         Messaging.InboundEmail.BinaryAttachment[] binaryAttachments = email.binaryAttachments;
         Messaging.InboundEmail.Textattachment[] textAttachments = email.textAttachments;
         List<Attachment> insertAttachments = new List<Attachment>();
         if(binaryAttachments != null)
         {
-            system.debug('Binary Attachments != null');
             for(Messaging.InboundEmail.BinaryAttachment currentBinaryAttachment : binaryAttachments)
             {
                 if(currentBinaryAttachment.body != null && currentBinaryAttachment.fileName != null)
@@ -295,7 +289,6 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
         }
         if(textAttachments != null)
         {
-            system.debug('Text Attachments != null');
             for(Messaging.InboundEmail.Textattachment currentTextAttachment : textAttachments)
             {
                 if(currentTextAttachment.body != null && currentTextAttachment.fileName != null)
@@ -305,7 +298,8 @@ global with sharing class Milestone1_Email_Handler implements Messaging.InboundE
                 }
             }
         }
-        system.debug('Insert the Attachments. Number is ' + insertAttachments.size());
+        Logger.info('Inserting ' + insertAttachments.size() + ' attachment(s)');
+        Logger.saveLog();
         if ((insertAttachments.size() > 0) && (Schema.sObjectType.Attachment.isCreateable())) {
             insert insertAttachments;
         } else {

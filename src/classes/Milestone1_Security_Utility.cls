@@ -10,14 +10,16 @@ public with sharing class Milestone1_Security_Utility {
     
     public static void fieldCreateable(DescribeFieldResult fdr) {
         if (!fdr.isCreateable()) {
-            System.debug(fdr.getName() + ' isnt creatable');
+            Logger.warn(fdr.getName() + ' is not creatable');
+            Logger.saveLog();
             throw new Milestone1_Exception('Insufficient Privileges');
         }
     }
     
     public static void fieldUpdateable(DescribeFieldResult fdr) {
         if (!fdr.isUpdateable()) {
-            System.debug(fdr.getName() + ' isnt updateable');
+            Logger.warn(fdr.getName() + ' is not updateable');
+            Logger.saveLog();
             throw new Milestone1_Exception('Insufficient Privileges');
         }
     }
@@ -27,7 +29,6 @@ public with sharing class Milestone1_Security_Utility {
         Map<String, Schema.SObjectField> fieldMap = dsr.fields.getMap();
         for (String field : fields) {
             DescribeFieldResult fdr = fieldMap.get(field).getDescribe();
-            System.debug(field + ': ' + fdr.isCreateable());
             fieldCreateable(fdr);
         }
     }
