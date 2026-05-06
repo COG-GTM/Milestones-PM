@@ -38,10 +38,11 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
         //query for list of child milestones that are NOT part of the recs collection
         List<Milestone1_Milestone__c> extraChildren = new List<Milestone1_Milestone__c>();
 
+        // System mode intentional: cascade delete must see all child milestones to prevent orphans
         extraChildren = [SELECT Id
                          FROM Milestone1_Milestone__c
                          WHERE Parent_Milestone__c IN :oldMap.keySet()
-                         AND Id NOT IN :oldMap.keySet() WITH USER_MODE
+                         AND Id NOT IN :oldMap.keySet()
                         ];
 
         
@@ -215,9 +216,10 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
             
 	        if(parentMilestoneIds.size() > 0){
                 
+                // System mode intentional: trigger must see parent milestones for validation and project assignment
                 List<Milestone1_Milestone__c> parentMilestones = [SELECT Id, Project__c, Parent_Milestone__c
 	                                       FROM Milestone1_Milestone__c
-	                                       WHERE Id IN :parentMilestoneIds WITH USER_MODE
+	                                       WHERE Id IN :parentMilestoneIds
 	                                   ];
 	
 	            Map<Id, Milestone1_Milestone__c> parentMilestonesMap = new Map<Id, Milestone1_Milestone__c>();
@@ -243,6 +245,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	        List<Milestone1_Milestone__c> extraChildren = new List<Milestone1_Milestone__c>();
 	        if(recMapById != null && recMapById.size() > 0){
                 
+	            	// System mode intentional: trigger rollup must see all child milestones for accurate totals
 	            	extraChildren = [SELECT Id,
 	                                    Name,
 	                                    Parent_Milestone__c,
@@ -259,7 +262,7 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	                                    Total_Blocked_Tasks__c
 	                             FROM Milestone1_Milestone__c
 	                             WHERE Parent_Milestone__c IN :recMapById.keySet()
-	                             AND Id NOT IN :recMapById.keySet() WITH USER_MODE
+	                             AND Id NOT IN :recMapById.keySet()
 	                            ];
 	        }
 	        
@@ -279,12 +282,13 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
 	        List<Milestone1_Task__c> lateTasks = new List<Milestone1_Task__c>();
             
             if(recMapById != null && recMapById.size() > 0){
+                // System mode intentional: trigger must see all late tasks for accurate milestone counts
                 lateTasks = [SELECT Id,
                              Project_Milestone__c
                              FROM Milestone1_Task__c
                              WHERE Project_Milestone__c IN :recMapById.keySet()
                              AND Complete__c = false
-                             AND Due_Date__c < :Date.today() WITH USER_MODE
+                             AND Due_Date__c < :Date.today()
                             ];
             } 
 
@@ -443,7 +447,8 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     		batchUpdateMilestones(idSet);
     	}
     	else{
-       		update [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :idSet WITH USER_MODE];
+       		// System mode intentional: cascade update must touch all parent milestones for rollup recalculation
+       		update [SELECT Id FROM Milestone1_Milestone__c WHERE Id IN :idSet];
     	}
     }
     
@@ -464,7 +469,8 @@ public with sharing class Milestone1_Milestone_Trigger_Utility {
     		batchUpdateProjects(idSet);
     	}
     	else{
-	        update [SELECT Id FROM Milestone1_Project__c WHERE Id IN :idSet WITH USER_MODE];
+	        // System mode intentional: cascade update must touch all parent projects for rollup recalculation
+	        update [SELECT Id FROM Milestone1_Project__c WHERE Id IN :idSet];
     	}
     }
 

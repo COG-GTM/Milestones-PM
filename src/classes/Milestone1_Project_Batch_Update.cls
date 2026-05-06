@@ -37,7 +37,8 @@ global with sharing class Milestone1_Project_Batch_Update implements Database.Ba
 	}
 
 	global Database.QueryLocator start(Database.BatchableContext BC){
-		return Database.getQueryLocator( [SELECT Id FROM Milestone1_Project__c WHERE Id IN :projectIds WITH USER_MODE] );
+		// System mode intentional: batch cascade update must touch all projects for rollup recalculation
+		return Database.getQueryLocator( [SELECT Id FROM Milestone1_Project__c WHERE Id IN :projectIds] );
 	}
 
 	global void execute(Database.BatchableContext BC, List<sObject> projectScope){

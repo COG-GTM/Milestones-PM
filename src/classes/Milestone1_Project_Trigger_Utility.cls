@@ -68,6 +68,7 @@ public with sharing class Milestone1_Project_Trigger_Utility {
         
         List<Milestone1_Milestone__c> milestones = new List<Milestone1_Milestone__c>();
         
+        // System mode intentional: trigger rollup must see all milestones to calculate accurate project totals
         milestones = [SELECT Id,
                                Name,
                                Project__c,
@@ -85,7 +86,7 @@ public with sharing class Milestone1_Project_Trigger_Utility {
                                Total_Late_Tasks__c,
                                Total_Blocked_Tasks__c
                         FROM Milestone1_Milestone__c
-                        WHERE Project__c IN :projectsById.keySet() WITH USER_MODE
+                        WHERE Project__c IN :projectsById.keySet()
                        ];
 
         System.debug('*** milestones queried for projects: ' + milestones.size());
@@ -149,9 +150,10 @@ public with sharing class Milestone1_Project_Trigger_Utility {
         
         List<Milestone1_Milestone__c> milestones = new List<Milestone1_Milestone__c>();
         
+        // System mode intentional: cascade delete must see all child milestones to prevent orphans
         milestones = [SELECT Id
                         FROM Milestone1_Milestone__c
-                        WHERE Project__c IN :projectsById.keySet() WITH USER_MODE
+                        WHERE Project__c IN :projectsById.keySet()
                        ];
         
         // Delete / Batch delete milestones
