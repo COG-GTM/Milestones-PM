@@ -185,7 +185,8 @@ public with sharing class Milestone1_Project_Trigger_Utility {
         }
 
         
-    	Integer projectCount = [SELECT count() FROM Milestone1_Project__c WHERE Name IN: nameList limit 1 WITH USER_MODE];
+    	// System mode intentional: trigger uniqueness check must see all projects to prevent duplicate names
+    	Integer projectCount = [SELECT count() FROM Milestone1_Project__c WHERE Name IN: nameList limit 1];
     	
     	//TODO Flesh out to be more specific -- right now this flags every project as problematic even if only one has a duplicate name
     	if( projectCount > 0 ) {
